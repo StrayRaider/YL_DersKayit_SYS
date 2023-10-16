@@ -1,0 +1,7 @@
+
+
+systemctl enable postgresql.service
+          disable
+
+
+database name : DersKayitSys
