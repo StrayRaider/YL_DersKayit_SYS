@@ -5,3 +5,5 @@ systemctl enable postgresql.service
 
 
 database name : DersKayitSys
+
+psql -d DersKayitSys
