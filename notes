@@ -4,6 +4,7 @@ systemctl enable postgresql.service
           disable
 
 
+createdb myDatabaseName
 database name : DersKayitSys
 
 psql -d DersKayitSys

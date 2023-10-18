@@ -5,42 +5,26 @@ import psycopg2
 conn = sqlLib.connect();
 cursor = conn.cursor()
 
+#LogIn
 
-createLogInTable = """ 
-    CREATE TABLE LogIn (
-    UserNo INT PRIMARY KEY,
-    Password VARCHAR(255),
-    UserId VARCHAR(255))
- """
+sqlLib.createLogIn(cursor)
 
-cursor.execute(createLogInTable)
+sqlLib.createNewUser(cursor, 1234, "elif")
 
-
-ınsertNew = """ INSERT INTO LogIn VALUES ('1', 'emre');  """
-cursor.execute(ınsertNew)
-
-def LogIn(Id, Password):
-    IdPassword = """ SELECT * FROM LogIn WHERE UserId = '{}' and Password = '{}' """.format(Id, Password)
-    cursor.execute(IdPassword)
-    print(cursor.fetchone())
+if(sqlLib.LogIn(cursor, "emre", "123")):
+    print("loginnig")
 
 
-LogIn("emre", "123")
-
-command = """
-    CREATE TABLE emre (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
-)"""
-
-cursor.execute(command)
-
-ınsertNew = """ INSERT INTO emre VALUES ('1', 'emre');  """
-cursor.execute(ınsertNew)
-
-cursor.execute("SELECT * FROM emre WHERE id = 1")
+cursor.execute("SELECT * FROM LogIn")
 
 # it returns single line
 # use fetchall instead
-print(cursor.fetchone())
+print(cursor.fetchall())
+
+
+sqlLib.dropLogIn(cursor)
+
+conn.commit()
+cursor.close()
+conn.close()
 
