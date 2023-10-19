@@ -30,11 +30,14 @@ def dropLogIn():
     dropLogIn = """ DROP TABLE LogIn """
     cursor.execute(dropLogIn)
 
-def createNewUser(passwd, userName, role):
+def createNewUser(userName, passwd,role):
     UserNo = genUserNo()
     print(UserNo)
-    ınsertNew = """ INSERT INTO LogIn VALUES ({},'{}' ,'{}', '{}');  """.format(UserNo, passwd, userName, role)
-    cursor.execute(ınsertNew)
+    if LogIn(userName, passwd, role):
+        print("error this user is allready exist")
+    else:
+        ınsertNew = """ INSERT INTO LogIn VALUES ({},'{}' ,'{}', '{}');  """.format(UserNo, passwd, userName, role)
+        cursor.execute(ınsertNew)
 
 def LogIn( Id, Password, role):
     IdPassword = """ SELECT * FROM LogIn WHERE UserId = '{}' and Password = '{}' and UserRole = '{}'""".format(Id, Password, role)
