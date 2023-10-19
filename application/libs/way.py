@@ -28,10 +28,13 @@ class WayWin(Gtk.VBox):
         self.pack_start(self.rootB,0,0,5)
         
     def studentLogInC(self,widget):
+        self.parent.way = "student_way"
         self.parent.stack.set_visible_child_name("LogIn_way")
     
     def teacherLogInC(self,widget):
+        self.parent.way = "teacher_way"
         self.parent.stack.set_visible_child_name("LogIn_way")
 
     def rootLogInC(self,widget):
+        self.parent.way = "root_way"
         self.parent.stack.set_visible_child_name("LogIn_way")

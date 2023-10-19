@@ -13,11 +13,11 @@ class LogInWin(Gtk.VBox):
 
         self.idEntery = Gtk.Entry()
         self.idEntery.set_placeholder_text(" ID ")
-        self.pack_start(self.idEntery,1,1,10)
+        self.pack_start(self.idEntery,0,0,5)
 
         self.pwdEntery = Gtk.Entry()
-        self.pwdEntery.set_placeholder_text(" ID ")
-        self.pack_start(self.pwdEntery,1,1,10)
+        self.pwdEntery.set_placeholder_text(" Password ")
+        self.pack_start(self.pwdEntery,0,0,5)
         
         self.logInB = Gtk.Button()
         self.logInB.set_label("LogIn")
@@ -27,11 +27,13 @@ class LogInWin(Gtk.VBox):
     def logInC(self,widget):
         userId = self.idEntery.get_text()
         userPwd = self.pwdEntery.get_text()
-        if(sqlLib.LogIn(userId, userPwd)):
+        userRole = self.parent.way.split("_")[0]
+        print(userRole)
+        if(sqlLib.LogIn(userId, userPwd, userRole)):
             print("loginnig")
+            self.parent.stack.set_visible_child_name(self.parent.way)
         else:
             print("error wrong ıd or password")
 
-        #self.parent.stack.set_visible_child_name("read_url")
         #next path
     

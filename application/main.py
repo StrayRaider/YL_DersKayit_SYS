@@ -5,28 +5,22 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-
-
-
-
-
 sqlLib.connect()
 
-#LogIn
-
+sqlLib.dropLogIn()
 sqlLib.createLogIn()
 
-sqlLib.createNewUser(1234, "elif")
+sqlLib.createNewUser("root", "root","root")
 
-if(sqlLib.LogIn("emre", "123")):
-    print("loginnig")
+if(sqlLib.LogIn("root", "root", "root")):
+    print("root loginnig")
 
 
 #cursor.execute("SELECT * FROM LogIn")
 # it returns single line
 # use fetchall instead
 #print(cursor.fetchall())
-#sqlLib.dropLogIn()
+
 
 
 win = window.MyWindow()

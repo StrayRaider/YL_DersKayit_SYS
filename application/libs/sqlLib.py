@@ -17,7 +17,8 @@ def createLogIn():
         CREATE TABLE IF NOT EXISTS LogIn (
         UserNo INT PRIMARY KEY,
         Password VARCHAR(255),
-        UserId VARCHAR(255))
+        UserId VARCHAR(255),
+        UserRole VARCHAR(255))
      """
     try:
         cursor.execute(createLogInTable)
@@ -29,14 +30,14 @@ def dropLogIn():
     dropLogIn = """ DROP TABLE LogIn """
     cursor.execute(dropLogIn)
 
-def createNewUser(passwd, userName):
+def createNewUser(passwd, userName, role):
     UserNo = genUserNo()
     print(UserNo)
-    ınsertNew = """ INSERT INTO LogIn VALUES ({},'{}' ,'{}');  """.format(UserNo, passwd, userName)
+    ınsertNew = """ INSERT INTO LogIn VALUES ({},'{}' ,'{}', '{}');  """.format(UserNo, passwd, userName, role)
     cursor.execute(ınsertNew)
 
-def LogIn( Id, Password):
-    IdPassword = """ SELECT * FROM LogIn WHERE UserId = '{}' and Password = '{}' """.format(Id, Password)
+def LogIn( Id, Password, role):
+    IdPassword = """ SELECT * FROM LogIn WHERE UserId = '{}' and Password = '{}' and UserRole = '{}'""".format(Id, Password, role)
     cursor.execute(IdPassword)
     data = cursor.fetchone()
     print(data)
