@@ -1,13 +1,18 @@
 import psycopg2
 
+conn = None
+cursor = None
+
 def connect():
+    global conn
+    global cursor
     conn = psycopg2.connect(database="DersKayitSys",
                         host="localhost",
                         user="postgres",
                         port="5432")
-    return conn;
+    cursor = conn.cursor()
 
-def createLogIn(cursor):
+def createLogIn():
     createLogInTable = """ 
         CREATE TABLE IF NOT EXISTS LogIn (
         UserNo INT PRIMARY KEY,
@@ -20,17 +25,17 @@ def createLogIn(cursor):
         print("error createing log in table")
 
 
-def dropLogIn(cursor):
+def dropLogIn():
     dropLogIn = """ DROP TABLE LogIn """
     cursor.execute(dropLogIn)
 
-def createNewUser(cursor, passwd, userName):
-    UserNo = genUserNo(cursor)
+def createNewUser(passwd, userName):
+    UserNo = genUserNo()
     print(UserNo)
     ınsertNew = """ INSERT INTO LogIn VALUES ({},'{}' ,'{}');  """.format(UserNo, passwd, userName)
     cursor.execute(ınsertNew)
 
-def LogIn(cursor, Id, Password):
+def LogIn( Id, Password):
     IdPassword = """ SELECT * FROM LogIn WHERE UserId = '{}' and Password = '{}' """.format(Id, Password)
     cursor.execute(IdPassword)
     data = cursor.fetchone()
@@ -40,7 +45,7 @@ def LogIn(cursor, Id, Password):
     else:
         return False
 
-def genUserNo(cursor):
+def genUserNo():
     cursor.execute("SELECT * FROM LogIn")
     idList = []
     try:
@@ -51,3 +56,7 @@ def genUserNo(cursor):
         print("error no user No founded")
         return 1
  
+def closeDB():
+    conn.commit()
+    cursor.close()
+    conn.close()

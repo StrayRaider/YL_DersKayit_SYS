@@ -1,4 +1,4 @@
-from libs import way, student, teacher, root
+from libs import way, student, teacher, root, logIn
 from gi.repository import Gtk
 
 class MyWindow(Gtk.Window):
@@ -13,6 +13,8 @@ class MyWindow(Gtk.Window):
         self.stack.add_titled(root.RootWin(self),"root_way","choice_screen")
         self.stack.add_titled(student.StudentWin(self),"student_way","choice_screen")
         self.stack.add_titled(teacher.TeacherWin(self),"teacher_way","choice_screen")
+        self.stack.add_titled(logIn.LogInWin(self),"LogIn_way","choice_screen")
+        self.way = ""
 
         self.main_box = Gtk.HBox()
         self.add(self.main_box)

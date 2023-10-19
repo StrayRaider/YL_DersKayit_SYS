@@ -7,7 +7,7 @@ class WayWin(Gtk.VBox):
     def __init__(self,parent):
         Gtk.VBox.__init__(self)
         self.parent = parent
-        self.label = Gtk.Label("Student Win")
+        self.label = Gtk.Label("LogIn Win")
         self.pack_start(self.label,0,0,5)
         
         self.studentB = Gtk.Button()
@@ -28,10 +28,10 @@ class WayWin(Gtk.VBox):
         self.pack_start(self.rootB,0,0,5)
         
     def studentLogInC(self,widget):
-        self.parent.stack.set_visible_child_name("student_way")
+        self.parent.stack.set_visible_child_name("LogIn_way")
     
     def teacherLogInC(self,widget):
-        self.parent.stack.set_visible_child_name("teacher_way")
+        self.parent.stack.set_visible_child_name("LogIn_way")
 
     def rootLogInC(self,widget):
-        self.parent.stack.set_visible_child_name("root_way")
+        self.parent.stack.set_visible_child_name("LogIn_way")
