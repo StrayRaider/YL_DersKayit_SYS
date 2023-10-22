@@ -11,8 +11,12 @@ sqlLib.dropLogIn()
 sqlLib.createLogIn()
 
 sqlLib.createNewUser("root", "root","root")
+sqlLib.createNewUser("emre", "1234","student")
 
 if(sqlLib.LogIn("root", "root", "root")):
+    print("root loginnig")
+
+if(sqlLib.LogIn("emre", "1234", "student")):
     print("root loginnig")
 
 
