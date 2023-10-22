@@ -54,6 +54,18 @@ def parseDataNew(data):
             lessons.append(i)
             print(i.split(" "))
     print(lessonC)
+    notes = ['AA','BA', 'BB','CB', 'CC', 'DC','DD','FD','FF','KK']
+    lessonList = [[]]
+    i = 0
+    for lesson in lessons:
+        lessonNo = re.findall("(?<!\d)[0-9]{7}(?!\d)",lesson)
+        lessonNote = re.findall("(?<![\w(])[A-Z]{2}(?![\w)])",lesson)
+        lessonList[i][0] = lessonNo
+        lessonList[i][1] = lessonNote
+
+        i += 1
+    print(lessonList) 
+        
     return lessons
     """ 
     data = data.replace('\\n', ' ')

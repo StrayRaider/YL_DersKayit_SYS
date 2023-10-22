@@ -59,6 +59,41 @@ def genUserNo():
     except:
         print("error no user No founded")
         return 1
+
+def getBig(table):
+    cursor.execute("SELECT * FROM {}".formattable())
+    idList = []
+    try:
+        for user in  cursor.fetchall():
+            idList.append(user[0])
+        return max(idList) + 1 
+    except:
+        print("error no user No founded")
+        return 1
+
+def createLessons():
+    create = """ 
+        CREATE TABLE IF NOT EXISTS Lessons (
+        LessonNo INT PRIMARY KEY,
+        LessonName VARCHAR(255))
+     """
+    try:
+        cursor.execute(create)
+    except:
+        print("error createing lessons table")
+
+def createStudentsLessons():
+    create = """ 
+        CREATE TABLE IF NOT EXISTS StudentsLessons (
+        rec INT PRIMARY KEY,
+        StudentNo INT,
+        LessonNo INT,
+        Note VARCHAR(2))
+     """
+    try:
+        cursor.execute(create)
+    except:
+        print("error createing studentslesson table")
  
 def closeDB():
     conn.commit()
