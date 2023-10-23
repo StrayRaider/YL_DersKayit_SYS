@@ -45,7 +45,6 @@ def LogIn( Id, Password, role):
     cursor.execute(IdPassword)
     data = cursor.fetchall()
     data = re.findall("[0-9]",str(data))
-    print(data)
     if(data != None):
         return data
     else:
@@ -108,25 +107,27 @@ def NewStudentLessons(studentNo,lessonList):
     for lesson in lessonList:
         rec = getBig("StudentsLessons")
         lessonNo = lesson[0]
-        lessonNote = lesson[1]
+        try:
+            lessonNote = lesson[1]
+        except:
+            pass
         if lessonNote == None:
             lessonNote == '--'
-        ınsertNew = """ INSERT INTO StudentsLessons VALUES ({},'{}' ,'{}', '{}');  """.format(rec, studentNo,lessonNo, lessonNote)
+        ınsertNew = """ INSERT INTO StudentsLessons VALUES ({},'{}' ,'{}', '{}');  """.format(rec, studentNo[0],lessonNo, lessonNote)
         cursor.execute(ınsertNew)
-    
-    print(rec)
-def getAllSL():
-        ınsertNew = """ SELECT * FROM StudentsLessons"""
-        cursor.execute(ınsertNew)
-        lessonList = cursor.fetchall()
-        print("List : ",lessonList)
+    print("rec : ",rec)
 
+def getAllSL():
+    ınsertNew = """ SELECT * FROM StudentsLessons"""
+    cursor.execute(ınsertNew)
+    lessonList = cursor.fetchall()
+    print("List : ",lessonList)
 
 def getStudentsLessons(StudentNo):
-        ınsertNew = """ SELECT * FROM StudentsLessons WHERE StudentNo = '{}'  """.format(StudentNo)
-        cursor.execute(ınsertNew)
-        lessonList = cursor.fetchall()
-        print("List : ",lessonList)
+    ınsertNew = """ SELECT * FROM StudentsLessons WHERE StudentNo = '{}'  """.format(StudentNo)
+    cursor.execute(ınsertNew)
+    lessonList = cursor.fetchall()
+    print("List : ",lessonList)
     
 
  
