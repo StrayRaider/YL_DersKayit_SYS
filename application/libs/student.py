@@ -45,6 +45,13 @@ class StudentWin(Gtk.VBox):
     def lessonButtonC(self,widget):
         self.dialog = LessonDialog(self)
         response = self.dialog.run()
+        if response == Gtk.ResponseType.OK:
+            print("The OK button was clicked")
+            self.dialog.destroy()
+        elif response == Gtk.ResponseType.CANCEL:
+            print("The Cancel button was clicked")
+            self.dialog.destroy()
+
         
 class LessonDialog(Gtk.Dialog):
     def __init__(self, parent):
@@ -52,7 +59,7 @@ class LessonDialog(Gtk.Dialog):
         self.add_buttons(
             Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK
         )
-
+        self.parent = parent
         self.set_default_size(650, 600)
         box = self.get_content_area()
 
@@ -60,7 +67,7 @@ class LessonDialog(Gtk.Dialog):
         #----------------------------------İndirilecekler Listesi
         #treeview ve list store oluşturulması
         #list store oluştururken sütunların hangi tipte değişken tutacağı belirtilir
-        self.StudentLStore = Gtk.ListStore(str,bool,str,bool)
+        self.StudentLStore = Gtk.ListStore(str,str,str,str)
         self.StudentLTree = Gtk.TreeView(self.StudentLStore)
         #içinde tutacağı değişken tipine göre bölme oluşturulması
         cell = Gtk.CellRendererText()
@@ -70,13 +77,13 @@ class LessonDialog(Gtk.Dialog):
         recColumn = Gtk.TreeViewColumn("rec",cell,text = 0)
         recColumn.set_max_width(70)
 
-        sNocolumn = Gtk.TreeViewColumn("Student No",cell,text = 2)
+        sNocolumn = Gtk.TreeViewColumn("Student No",cell,text = 1)
         sNocolumn.set_max_width(70)
 
         lNocolumn = Gtk.TreeViewColumn("Lesson No",cell,text = 2)
         lNocolumn.set_max_width(70)
 
-        notecolumn = Gtk.TreeViewColumn("Note ",cell,text = 2)
+        notecolumn = Gtk.TreeViewColumn("Note ",cell,text = 3)
         notecolumn.set_max_width(70)
                
         self.StudentLTree.append_column(recColumn)
@@ -110,6 +117,16 @@ class LessonDialog(Gtk.Dialog):
         l_scrolled = Gtk.ScrolledWindow()
         box.pack_start(l_scrolled,1,1,10)
         l_scrolled.add(self.StudentLTree)
+
+        print(type(self.parent.parent.ActiveNo))
+        activeNo = self.parent.parent.ActiveNo
+        for i in sqlLib.getStudentsLessons(activeNo):
+            print(i)
+            string_list = []
+            for item in i:
+                string_list.append(str(item))
+                
+            self.StudentLStore.append([*string_list])
 
 
         label = Gtk.Label(label="This is a dialog to display additional information")

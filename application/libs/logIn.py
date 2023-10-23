@@ -32,7 +32,7 @@ class LogInWin(Gtk.VBox):
         activeNo = sqlLib.LogIn(userId, userPwd, userRole)
         if activeNo != None and activeNo != False:
             print("loginnig")
-            self.parent.ActiveNo = activeNo
+            self.parent.ActiveNo = activeNo[0]
             print("NO",activeNo)
             self.parent.stack.set_visible_child_name(self.parent.way)
         else:

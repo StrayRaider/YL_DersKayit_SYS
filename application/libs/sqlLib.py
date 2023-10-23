@@ -128,6 +128,7 @@ def getStudentsLessons(StudentNo):
     cursor.execute(ınsertNew)
     lessonList = cursor.fetchall()
     print("List : ",lessonList)
+    return lessonList
     
 
  
