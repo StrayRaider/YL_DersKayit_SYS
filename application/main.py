@@ -10,8 +10,10 @@ sqlLib.connect()
 sqlLib.dropLogIn()
 sqlLib.createLogIn()
 
-sqlLib.createLessons()
-sqlLib.createStudentsLessons()
+#sqlLib.createLessons()
+#sqlLib.createStudentsLessons()
+
+sqlLib.getAllSL()
 
 sqlLib.createNewUser("root", "root","root")
 sqlLib.createNewUser("emre", "1234","student")
