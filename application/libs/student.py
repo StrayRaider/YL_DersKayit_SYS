@@ -1,5 +1,5 @@
 import gi
-from libs import ocrRead
+from libs import ocrRead, sqlLib
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf
 
@@ -14,10 +14,11 @@ class StudentWin(Gtk.VBox):
         self.label = Gtk.Label("Student Win")
         self.pack_start(self.label,0,0,5)
         
-        self.drop_area = DropArea()
+        self.drop_area = DropArea(self)
         self.pack_start(self.drop_area, 0, 0, 5)
 
         self.add_text_targets()
+        sqlLib.getStudentsLessons(self.parent.ActiveNo)
         
     def studentLogInC(self,widget):
         self.parent.stack.set_visible_child_name("read_url")
@@ -37,7 +38,8 @@ class StudentWin(Gtk.VBox):
         
 
 class DropArea(Gtk.Label):
-    def __init__(self):
+    def __init__(self, parent):
+        self.parent = parent
         Gtk.Label.__init__(self)
         self.set_label("Transkrip Yükle!")
         self.drag_dest_set(Gtk.DestDefaults.ALL, [], DRAG_ACTION)
@@ -51,7 +53,9 @@ class DropArea(Gtk.Label):
             file = text.split(".pdf")[0]
             file = file+".pdf"
             print("recieved : "+ text)
-            print(ocrRead.runOcr(file))
+            lessonList = ocrRead.runOcr(file)
+            sqlLib.NewStudentLessons(self.parent.parent.ActiveNo, lessonList)
+            sqlLib.getAllSL()
 
         elif info == TARGET_ENTRY_PIXBUF:
             pixbuf = data.get_pixbuf()

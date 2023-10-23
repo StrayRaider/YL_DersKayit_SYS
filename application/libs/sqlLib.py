@@ -1,4 +1,5 @@
 import psycopg2
+import re
 
 conn = None
 cursor = None
@@ -32,36 +33,44 @@ def dropLogIn():
 
 def createNewUser(userName, passwd,role):
     UserNo = genUserNo()
-    print(UserNo)
+    print("created No ",UserNo)
     if LogIn(userName, passwd, role):
         print("error this user is allready exist")
     else:
-        ınsertNew = """ INSERT INTO LogIn VALUES ({},'{}' ,'{}', '{}');  """.format(UserNo, passwd, userName, role)
+        ınsertNew = """ INSERT INTO LogIn VALUES ('{}' , '{}' ,'{}', '{}');  """.format(UserNo, passwd, userName, role)
         cursor.execute(ınsertNew)
 
 def LogIn( Id, Password, role):
-    IdPassword = """ SELECT * FROM LogIn WHERE UserId = '{}' and Password = '{}' and UserRole = '{}'""".format(Id, Password, role)
+    IdPassword = """ SELECT UserNo FROM LogIn WHERE UserId = '{}' and Password = '{}' and UserRole = '{}'""".format(Id, Password, role)
     cursor.execute(IdPassword)
-    data = cursor.fetchone()
+    data = cursor.fetchall()
+    data = re.findall("[0-9]",str(data))
     print(data)
     if(data != None):
-        return True
+        return data
     else:
         return False
 
+def getLogIn():
+    IdPassword = """ SELECT * FROM LogIn"""
+    cursor.execute(IdPassword)
+    data = cursor.fetchall()
+    print(data)
+
 def genUserNo():
-    cursor.execute("SELECT * FROM LogIn")
+    cursor.execute("SELECT UserNo FROM LogIn")
     idList = []
     try:
         for user in  cursor.fetchall():
             idList.append(user[0])
+        print("returned : ",max(idList) + 1 )
         return max(idList) + 1 
     except:
         print("error no user No founded")
         return 1
 
 def getBig(table):
-    cursor.execute("SELECT * FROM {}".formattable())
+    cursor.execute("SELECT rec FROM {}".format(table))
     idList = []
     try:
         for user in  cursor.fetchall():
@@ -94,6 +103,32 @@ def createStudentsLessons():
         cursor.execute(create)
     except:
         print("error createing studentslesson table")
+
+def NewStudentLessons(studentNo,lessonList):
+    for lesson in lessonList:
+        rec = getBig("StudentsLessons")
+        lessonNo = lesson[0]
+        lessonNote = lesson[1]
+        if lessonNote == None:
+            lessonNote == '--'
+        ınsertNew = """ INSERT INTO StudentsLessons VALUES ({},'{}' ,'{}', '{}');  """.format(rec, studentNo,lessonNo, lessonNote)
+        cursor.execute(ınsertNew)
+    
+    print(rec)
+def getAllSL():
+        ınsertNew = """ SELECT * FROM StudentsLessons"""
+        cursor.execute(ınsertNew)
+        lessonList = cursor.fetchall()
+        print("List : ",lessonList)
+
+
+def getStudentsLessons(StudentNo):
+        ınsertNew = """ SELECT * FROM StudentsLessons WHERE StudentNo = '{}'  """.format(StudentNo)
+        cursor.execute(ınsertNew)
+        lessonList = cursor.fetchall()
+        print("List : ",lessonList)
+    
+
  
 def closeDB():
     conn.commit()

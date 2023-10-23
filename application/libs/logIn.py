@@ -29,8 +29,11 @@ class LogInWin(Gtk.VBox):
         userPwd = self.pwdEntery.get_text()
         userRole = self.parent.way.split("_")[0]
         print(userRole)
-        if(sqlLib.LogIn(userId, userPwd, userRole)):
+        activeNo = sqlLib.LogIn(userId, userPwd, userRole)
+        if activeNo != None and activeNo != False:
             print("loginnig")
+            self.parent.ActiveNo = activeNo
+            print("NO",activeNo)
             self.parent.stack.set_visible_child_name(self.parent.way)
         else:
             print("error wrong ıd or password")

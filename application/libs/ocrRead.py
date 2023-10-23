@@ -16,7 +16,7 @@ def ocrRead(filePath = '/home/stray/EmreKayaTranskript.pdf'):
     doc = convert_from_path(filePath)
     path, fileName = os.path.split(filePath)
     fileBaseName, fileExtension = os.path.splitext(fileName)
-    custom_config = r'--oem 3 --psm 6'
+    custom_config = r'--psm 6 --oem 3'
     #custom_config = r'--oem 3 --psm 6 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 --dpi 300'
     #custom_config = r"--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789"
 
@@ -27,7 +27,7 @@ def ocrRead(filePath = '/home/stray/EmreKayaTranskript.pdf'):
         txt = pytesseract.image_to_string(page_data,lang="eng", config=custom_config).encode("utf-8")
         allPages = allPages+" "+str(txt)
         #print("Page # {} - {}".format(str(page_number),txt))
-    print(allPages)
+    #print(allPages)
     return allPages
 
 
@@ -47,26 +47,38 @@ def parseData(data):
 def parseDataNew(data):
     lessonC = 0
     lessons = []
+    lessonNos = re.findall("(?<!\d)[0-9]{7}(?!\d)",data)
+    notes = ['AA','BA', 'BB','CB', 'CC', 'DC','DD','FD','FF','KK','G']
     for i in data.split("\\n"):
         lessonNos = re.findall("(?<!\d)[0-9]{7}(?!\d)",i)
         if lessonNos:
             lessonC += 1
             lessons.append(i)
-            print(i.split(" "))
-    print(lessonC)
-    notes = ['AA','BA', 'BB','CB', 'CC', 'DC','DD','FD','FF','KK']
-    lessonList = [[]]
-    i = 0
-    for lesson in lessons:
-        lessonNo = re.findall("(?<!\d)[0-9]{7}(?!\d)",lesson)
-        lessonNote = re.findall("(?<![\w(])[A-Z]{2}(?![\w)])",lesson)
-        lessonList[i][0] = lessonNo
-        lessonList[i][1] = lessonNote
+            #print(i.split(" "))
+    #print(lessonC)
+    lessonList = []
 
-        i += 1
+    for lesson in lessons:
+        print(lesson)
+        lessonL = []
+        lessonNo = re.findall("(?<!\d)[0-9]{7}(?!\d)",lesson)[0]
+        lessonL.append(lessonNo)
+        foundednotes = re.findall("(?<![\w(])[A-Z]{2}(?![\w)])",lesson)
+        foundedg = re.findall("(?<![\w(])[G](?![\w)])",lesson)
+        print("here", foundedg)
+        for x in foundedg:
+            foundednotes.append(foundedg[0])
+        print("here", foundednotes)
+        for i in foundednotes:
+            if i in notes:
+                lessonL.append(i)
+        lessonList.append(lessonL)
+
     print(lessonList) 
+    for i in lessonList:
+        print(i)
         
-    return lessons
+    return lessonList
     """ 
     data = data.replace('\\n', ' ')
     #print(data)

@@ -5,6 +5,8 @@ class MyWindow(Gtk.Window):
     def __init__(self):
         super().__init__(title=" Proje Dersi Kayıt Sistemi ")
 
+        self.ActiveNo = -1
+
         self.stack = Gtk.Stack()
         self.add(self.stack)
         self.stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
