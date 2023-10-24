@@ -161,6 +161,28 @@ def getStudentData(userNo):
         cursor.execute(ınsertNew)
         return cursor.fetchall()[0]
 
+
+def createStudentTable():
+    create = """ 
+        CREATE TABLE IF NOT EXISTS Teachers (
+        UserNo INT PRIMARY KEY,
+        RegtNo INT,
+        Name VARCHAR(50),
+        SurName VARCHAR(50),
+        TranskriptPath VARCHAR(255),
+        Note VARCHAR(10))
+     """
+        #Interests VARCHAR(255),
+        #DealRequestCount INT,
+        #DealState VARCHAR(50),
+    try:
+        cursor.execute(create)
+    except:
+        print("error createing teachers table")
+
+
+
+
 def closeDB():
     conn.commit()
     cursor.close()
