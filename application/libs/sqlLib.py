@@ -151,13 +151,15 @@ def createStudentTable():
         print("error createing students table")
 
 
-def createNewStudent(userNo, studentNo, name, surName, transkriptPath, note):
-    ınsertNew = """ INSERT INTO Students VALUES ('{}' , '{}' ,'{}', '{}','{}','{}');  """.format(userNo, studentNo, name, surname, transkriptPath, note)
+def createNewStudent(userNo, studentNo,name,surName, note,transkriptPath):
+    ınsertNew = """ INSERT INTO Students VALUES ('{}' , '{}' ,'{}', '{}','{}','{}');  """.format(userNo, studentNo, name, surName, transkriptPath, note)
     cursor.execute(ınsertNew)
 
 def getStudentData(userNo):
-    ınsertNew = """ SELECT * FROM Students WHERE UserNo = '{}');  """.format(UserNo)
-    cursor.execute(ınsertNew)
+    if userNo != -1:
+        ınsertNew = """ SELECT * FROM Students WHERE UserNo = '{}';  """.format(userNo)
+        cursor.execute(ınsertNew)
+        return cursor.fetchall()[0]
 
 def closeDB():
     conn.commit()

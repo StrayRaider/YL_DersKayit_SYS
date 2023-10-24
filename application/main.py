@@ -9,6 +9,7 @@ sqlLib.connect()
 
 sqlLib.dropLogIn()
 sqlLib.createLogIn()
+sqlLib.createStudentTable()
 
 #sqlLib.createLessons()
 #sqlLib.createStudentsLessons()

@@ -25,6 +25,27 @@ class StudentWin(Gtk.VBox):
         self.add_text_targets()
         sqlLib.getStudentsLessons(self.parent.ActiveNo)
 
+        create = """ 
+        CREATE TABLE IF NOT EXISTS Students (
+        UserNo INT PRIMARY KEY,
+        StudentNo INT,
+        Name VARCHAR(50),
+        SurName VARCHAR(50),
+        TranskriptPath VARCHAR(255),
+        Note VARCHAR(10))"""
+
+        self.nameL = Gtk.Label(label="Name : ")
+        self.surnameL = Gtk.Label(label="surname : ")
+        self.studentNoL = Gtk.Label(label="Student Number : ")
+        self.noteL = Gtk.Label(label="Grade Avarage : ")
+
+        self.pack_start(self.nameL,0,0,5)
+        self.pack_start(self.surnameL,0,0,5)
+        self.pack_start(self.studentNoL,0,0,5)
+        self.pack_start(self.noteL,0,0,5)
+
+        self.updateStudentInfo()
+
         
     def studentLogInC(self,widget):
         self.parent.stack.set_visible_child_name("read_url")
@@ -51,6 +72,15 @@ class StudentWin(Gtk.VBox):
         elif response == Gtk.ResponseType.CANCEL:
             print("The Cancel button was clicked")
             self.dialog.destroy()
+
+    def updateStudentInfo(self):
+        studentData = sqlLib.getStudentData(self.parent.ActiveNo)
+        print(studentData)
+        if studentData and studentData != []:
+            self.nameL.set_text("Name : {}".format(studentData[2]))
+            self.surnameL.set_text("surname : {}".format(studentData[3]))
+            self.studentNoL.set_text("Student Number : {}".format(studentData[1]))
+            self.noteL.set_text("Grade Avarage : {}".format(studentData[5]))
 
         
 class LessonDialog(Gtk.Dialog):
@@ -151,8 +181,10 @@ class DropArea(Gtk.Label):
             file = text.split(".pdf")[0]
             file = file+".pdf"
             print("recieved : "+ text)
-            lessonList, studentNote = ocrRead.runOcr(file)
+            lessonList, studentData = ocrRead.runOcr(file)
             sqlLib.NewStudentLessons(self.parent.parent.ActiveNo, lessonList)
+            sqlLib.createNewStudent(self.parent.parent.ActiveNo, *studentData, file)
+            self.parent.updateStudentInfo()
             sqlLib.getAllSL()
 
         elif info == TARGET_ENTRY_PIXBUF:
