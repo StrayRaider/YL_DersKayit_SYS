@@ -36,9 +36,11 @@ def createNewUser(userName, passwd,role):
     print("created No ",UserNo)
     if LogIn(userName, passwd, role):
         print("error this user is allready exist")
+        return 0
     else:
         ınsertNew = """ INSERT INTO LogIn VALUES ('{}' , '{}' ,'{}', '{}');  """.format(UserNo, passwd, userName, role)
         cursor.execute(ınsertNew)
+        return 1
 
 def LogIn( Id, Password, role):
     IdPassword = """ SELECT UserNo FROM LogIn WHERE UserId = '{}' and Password = '{}' and UserRole = '{}'""".format(Id, Password, role)

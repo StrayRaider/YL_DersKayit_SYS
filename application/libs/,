@@ -1,5 +1,4 @@
 import gi
-from libs import sqlLib
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -37,51 +36,33 @@ class NewUserDialog(Gtk.Dialog):
         self.add_buttons(
             Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK
         )
-        box = self.get_content_area()
         self.parent = parent
         self.set_default_size(650, 600)
 
         self.idEntery = Gtk.Entry()
         self.idEntery.set_placeholder_text(" ID ")
-        box.pack_start(self.idEntery,0,0,5)
+        self.pack_start(self.idEntery,0,0,5)
 
         self.pwdEntery = Gtk.Entry()
         self.pwdEntery.set_placeholder_text(" Password ")
-        box.pack_start(self.pwdEntery,0,0,5)
+        self.pack_start(self.pwdEntery,0,0,5)
 
         self.logInB = Gtk.Button()
-        self.logInB.set_label("Create User")
-        self.logInB.connect("clicked",self.CreateC)
-        box.pack_start(self.logInB,0,0,5)
-
-
-	
-        roles = [
-            "Student",
-            "Teacher"
-        ]
-        self.rolecombo = Gtk.ComboBoxText()
-        self.rolecombo.set_entry_text_column(0)
-        self.rolecombo.connect("changed", self.on_currency_combo_changed)
-        for role in roles:
-            self.rolecombo.append_text(role)
-
-        self.rolecombo.set_active(0)
-        box.pack_start(self.rolecombo, False, False, 0)
-
-        self.show_all()
-
-    def on_currency_combo_changed(self, widget):
-        text = self.rolecombo.get_active_text()
-        if text is not None:
-            print("Selected: currency=%s" % text)
+        self.logInB.set_label("LogIn")
+        self.logInB.connect("clicked",self.logInC)
+        self.pack_start(self.logInB,0,0,5)
 
     def CreateC(self,widget):
-        role = self.rolecombo.get_active_text()
-        if role is not None:
-            print("Selected: currency=%s" % role)
-            userId = self.idEntery.get_text()
-            userPwd = self.pwdEntery.get_text()
-            if sqlLib.createNewUser(userId, userPwd,role):
-                self.destroy()
-
+        userId = self.idEntery.get_text()
+        userPwd = self.pwdEntery.get_text()
+        userRole = self.parent.way.split("_")[0]
+        print(userRole)
+        #activeNo = sqlLib.LogIn(userId, userPwd, userRole)
+        print(activeNo)
+        if activeNo and activeNo != False:
+            print("loginnig")
+            self.parent.ActiveNo = activeNo[0]
+            print("NO",activeNo)
+            self.parent.stack.set_visible_child_name(self.parent.way)
+        else:
+            print("error wrong ıd or password")
