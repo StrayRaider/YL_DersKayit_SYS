@@ -14,6 +14,8 @@ class StudentWin(Gtk.VBox):
         self.label = Gtk.Label("Student Win")
         self.pack_start(self.label,0,0,5)
 
+        self.connect("draw",self.updateStudentInfo)
+
         self.lessonButton = Gtk.Button()
         self.lessonButton.set_label("Show Lessons")
         self.lessonButton.connect("clicked",self.lessonButtonC)
@@ -44,18 +46,8 @@ class StudentWin(Gtk.VBox):
         self.pack_start(self.studentNoL,0,0,5)
         self.pack_start(self.noteL,0,0,5)
 
-        self.updateStudentInfo()
-
+        self.updateStudentInfo(None,None)
         
-    def studentLogInC(self,widget):
-        self.parent.stack.set_visible_child_name("read_url")
-    
-    def teacherLogInC(self,widget):
-        self.parent.stack.set_visible_child_name("select_size")
-
-    def rootLogInC(self,widget):
-        self.parent.stack.set_visible_child_name("select_size")
-
     def add_text_targets(self, button=None):
         self.drop_area.drag_dest_set_target_list(None)
         self.drag_source_set_target_list(None)
@@ -73,7 +65,7 @@ class StudentWin(Gtk.VBox):
             print("The Cancel button was clicked")
             self.dialog.destroy()
 
-    def updateStudentInfo(self):
+    def updateStudentInfo(self,widget,cr):
         studentData = sqlLib.getStudentData(self.parent.ActiveNo)
         print(studentData)
         if studentData and studentData != []:
