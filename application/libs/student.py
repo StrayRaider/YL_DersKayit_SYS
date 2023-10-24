@@ -151,7 +151,7 @@ class DropArea(Gtk.Label):
             file = text.split(".pdf")[0]
             file = file+".pdf"
             print("recieved : "+ text)
-            lessonList = ocrRead.runOcr(file)
+            lessonList, studentNote = ocrRead.runOcr(file)
             sqlLib.NewStudentLessons(self.parent.parent.ActiveNo, lessonList)
             sqlLib.getAllSL()
 

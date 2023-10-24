@@ -132,8 +132,33 @@ def getStudentsLessons(StudentNo):
     print("List : ",lessonList)
     return lessonList
     
+def createStudentTable():
+    create = """ 
+        CREATE TABLE IF NOT EXISTS Students (
+        UserNo INT PRIMARY KEY,
+        StudentNo INT,
+        Name VARCHAR(50),
+        SurName VARCHAR(50),
+        TranskriptPath VARCHAR(255),
+        Note VARCHAR(10))
+     """
+        #Interests VARCHAR(255),
+        #DealRequestCount INT,
+        #DealState VARCHAR(50),
+    try:
+        cursor.execute(create)
+    except:
+        print("error createing students table")
 
- 
+
+def createNewStudent(userNo, studentNo, name, surName, transkriptPath, note):
+    ınsertNew = """ INSERT INTO Students VALUES ('{}' , '{}' ,'{}', '{}','{}','{}');  """.format(userNo, studentNo, name, surname, transkriptPath, note)
+    cursor.execute(ınsertNew)
+
+def getStudentData(userNo):
+    ınsertNew = """ SELECT * FROM Students WHERE UserNo = '{}');  """.format(UserNo)
+    cursor.execute(ınsertNew)
+
 def closeDB():
     conn.commit()
     cursor.close()
