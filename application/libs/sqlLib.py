@@ -1,5 +1,5 @@
 import psycopg2
-import re
+import re, random
 
 conn = None
 cursor = None
@@ -40,6 +40,8 @@ def createNewUser(userName, passwd,role):
     else:
         ınsertNew = """ INSERT INTO LogIn VALUES ('{}' , '{}' ,'{}', '{}');  """.format(UserNo, passwd, userName, role)
         cursor.execute(ınsertNew)
+        closeDB()
+        connect()
         return 1
 
 def LogIn( Id, Password, role):
@@ -180,7 +182,52 @@ def createStudentTable():
     except:
         print("error createing teachers table")
 
+def getStudents():
+    students = """ SELECT UserNo FROM LogIn WHERE UserRole = '{}'  """.format("student")
+    cursor.execute(students)
+    students = cursor.fetchall()
+    print("List : ", students)
+    students = parseData(students)
+    return students
 
+def getStudentNos():
+    students = getStudents()
+    for userNo in students:
+        print(userNo)
+        studentData = getStudentData(userNo)
+        print(studentData)
+        x = 0
+        sData = []
+        for i in studentData:
+            if x == 1:
+                sData.append(str(studentData[x]))
+                break
+            x+=1
+    return sData
+
+def parseData(data):
+    pdata = []
+    for i in data:
+        i = i[0]
+        pdata.append(i)
+    return pdata
+
+def createRandomStudent(count):
+    for x in range(0,count):
+        userNo = genUserNo()
+        studentNos = getStudentNos()
+        studentNo = "210201"+str(random.randint(0,200))
+        while studentNo in studentNos:
+            studentNo = "210201"+str(random.randint(0,200))
+    
+        name = "student"+str(userNo)
+        surName = "studentsur"+str(userNo)
+        note = "0"
+        transkriptPath = "--"
+        createNewUser(name, userNo,"student")
+        #createNewStudent(userNo, studentNo,name,surName, note,transkriptPath)
+    closeDB()
+    connect()
 
 
 def closeDB():

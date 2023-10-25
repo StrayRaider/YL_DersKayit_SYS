@@ -45,12 +45,13 @@ class RootWin(Gtk.VBox):
 class allStudentsDialog(Gtk.Dialog):
     def __init__(self, parent):
         super().__init__(title="My Lessons")
+        sqlLib.createRandomStudent(3)
         box = self.get_content_area()
         self.parent = parent
         self.set_default_size(650, 600)
 
 
-        self.StudentStore = Gtk.ListStore(str,str,str,str)
+        self.StudentStore = Gtk.ListStore(str,str,str,str,str,str)
         self.StudentTree = Gtk.TreeView(self.StudentStore)
         #içinde tutacağı değişken tipine göre bölme oluşturulması
         cell = Gtk.CellRendererText()
@@ -60,27 +61,48 @@ class allStudentsDialog(Gtk.Dialog):
 
         #datas : number, name, surname, avarageGrade, transkriptPath
 
-        noColumn = Gtk.TreeViewColumn("Student Number",cell,text = 0)
-        noColumn.set_max_width(70)
+        unoColumn = Gtk.TreeViewColumn("User No",cell,text = 0)
+        unoColumn.set_max_width(100)
 
-        nameColumn = Gtk.TreeViewColumn("Name",cell,text = 1)
+        noColumn = Gtk.TreeViewColumn("Student Number",cell,text = 1)
+        noColumn.set_max_width(100)
+
+        nameColumn = Gtk.TreeViewColumn("Name",cell,text = 2)
         nameColumn.set_max_width(100)
 
-        snameColumn = Gtk.TreeViewColumn("SurName",cell,text = 2)
+        snameColumn = Gtk.TreeViewColumn("SurName",cell,text = 3)
         snameColumn.set_max_width(100)
+
+        transkriptColumn = Gtk.TreeViewColumn("Transkript Path",cell,text = 4)
+        transkriptColumn.set_max_width(170)
         
-        gradeColumn = Gtk.TreeViewColumn("SurName",cell,text = 3)
-        gradeColumn.set_max_width(70)
+        gradeColumn = Gtk.TreeViewColumn("GradeAvarage",cell,text = 5)
+        gradeColumn.set_max_width(100)
+
 
 
         self.StudentTree.append_column(noColumn)
+        self.StudentTree.append_column(unoColumn)
         self.StudentTree.append_column(nameColumn)
         self.StudentTree.append_column(snameColumn)
+        self.StudentTree.append_column(transkriptColumn)
         self.StudentTree.append_column(gradeColumn)
 
         l_scrolled = Gtk.ScrolledWindow()
         box.pack_start(l_scrolled,1,1,10)
         l_scrolled.add(self.StudentTree)
+
+
+        for userNo in sqlLib.getStudents():
+            print("userNo :",userNo)
+            studentData = sqlLib.getStudentData(userNo)
+            print(studentData)
+            x = 0
+            sData = []
+            for i in studentData:
+                sData.append(str(studentData[x]))
+                x+=1
+            self.StudentStore.append([*sData])
 
         self.show_all()
 
@@ -112,8 +134,8 @@ class NewUserDialog(Gtk.Dialog):
 
 	
         roles = [
-            "Student",
-            "Teacher"
+            "student",
+            "teacher"
         ]
         self.rolecombo = Gtk.ComboBoxText()
         self.rolecombo.set_entry_text_column(0)
