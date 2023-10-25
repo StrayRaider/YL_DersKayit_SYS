@@ -31,6 +31,10 @@ def dropLogIn():
     dropLogIn = """ DROP TABLE LogIn """
     cursor.execute(dropLogIn)
 
+def droptable(table):
+    dropLogIn = """ DROP TABLE {} """.format(table)
+    cursor.execute(dropLogIn)
+
 def createNewUser(userName, passwd,role):
     UserNo = genUserNo()
     print("created No ",UserNo)
@@ -42,7 +46,7 @@ def createNewUser(userName, passwd,role):
         cursor.execute(ınsertNew)
         closeDB()
         connect()
-        return 1
+        return UserNo
 
 def LogIn( Id, Password, role):
     IdPassword = """ SELECT UserNo FROM LogIn WHERE UserId = '{}' and Password = '{}' and UserRole = '{}'""".format(Id, Password, role)
@@ -82,17 +86,6 @@ def getBig(table):
     except:
         print("error no user No founded")
         return 1
-
-def createLessons():
-    create = """ 
-        CREATE TABLE IF NOT EXISTS Lessons (
-        LessonNo INT PRIMARY KEY,
-        LessonName VARCHAR(255))
-     """
-    try:
-        cursor.execute(create)
-    except:
-        print("error createing lessons table")
 
 def createStudentsLessons():
     create = """ 
@@ -142,7 +135,8 @@ def createStudentTable():
         Name VARCHAR(50),
         SurName VARCHAR(50),
         TranskriptPath VARCHAR(255),
-        Note VARCHAR(10))
+        Note VARCHAR(10),
+        Interests VARCHAR(255))
      """
         #Interests VARCHAR(255),
         #DealRequestCount INT,
@@ -163,24 +157,19 @@ def getStudentData(userNo):
         cursor.execute(ınsertNew)
         return cursor.fetchall()[0]
 
-
-def createStudentTable():
+def createActiveLessons():
     create = """ 
-        CREATE TABLE IF NOT EXISTS Teachers (
-        UserNo INT PRIMARY KEY,
-        RegtNo INT,
-        Name VARCHAR(50),
-        SurName VARCHAR(50),
-        TranskriptPath VARCHAR(255),
-        Note VARCHAR(10))
+        CREATE TABLE IF NOT EXISTS ActiveLessons (
+        rev INT PRIMARY KEY,
+        LessonNo INT,
+        LessonName VARCHAR(50),
+        RegNo INT)
      """
-        #Interests VARCHAR(255),
-        #DealRequestCount INT,
-        #DealState VARCHAR(50),
     try:
         cursor.execute(create)
     except:
-        print("error createing teachers table")
+        print("error createing activeLessons table")
+
 
 def getStudents():
     students = """ SELECT UserNo FROM LogIn WHERE UserRole = '{}'  """.format("student")
@@ -225,9 +214,76 @@ def createRandomStudent(count):
         note = "0"
         transkriptPath = "--"
         createNewUser(name, userNo,"student")
-        #createNewStudent(userNo, studentNo,name,surName, note,transkriptPath)
+        createNewStudent(userNo, studentNo,name,surName, note,transkriptPath)
     closeDB()
     connect()
+
+def createTeacherTable():
+    create = """ 
+        CREATE TABLE IF NOT EXISTS Teachers (
+        UserNo INT PRIMARY KEY,
+        RegNo INT,
+        Name VARCHAR(50),
+        SurName VARCHAR(50),
+        MaxStudent INT,
+        Interests VARCHAR(255))
+     """
+        #Interests VARCHAR(255),
+        #DealRequestCount INT,
+        #DealState VARCHAR(50),
+    try:
+        cursor.execute(create)
+    except:
+        print("error createing teachers table")
+
+
+def createnewTeacher(userNo, regNo, name, surname, maxStudent):
+    ınsertNew = """ INSERT INTO Teachers VALUES ('{}' , '{}' ,'{}', '{}','{}', '');  """.format(userNo, regNo, name, surname, maxStudent)
+    cursor.execute(ınsertNew)
+
+def createNewLesson(lessonName, lessonNo, regNo):
+    rec = getBig("Lessons")
+    ınsertNew = """ INSERT INTO ActiveLessons VALUES ('{}' , '{}' ,'{}', '{}');  """.format(rec, LessonNo, LessonName, regNo)
+    cursor.execute(ınsertNew)
+
+def getInterest(userNo, role):
+    if role == "student":
+        ınsertNew = """ SELECT Interests FROM Students WHERE UserNo = '{}';  """.format(userNo)
+        cursor.execute(ınsertNew)
+        intList = cursor.fetchall()
+        intList = parseData(intList)
+        print("List : ",intList)
+        return intList
+        
+    elif role == "teacher":
+        ınsertNew = """ SELECT Interests FROM Teachers WHERE UserNo = '{}';  """.format(userNo)
+        cursor.execute(ınsertNew)
+        intList = cursor.fetchall()
+        print("List : ",intList)
+        intList = parseData(intList)
+        print("List : ",intList)
+        return intList
+
+def setInterest(userNo, role, interest):
+    interestold = getInterest(userNo, role)
+    into = ""
+    if interestold != None:
+        x = 0
+        for i in interestold:
+            if not x :
+                into = str(i)
+            else:
+                into = into + " " +str(i)
+            x += 1
+        if interest not in into.split(" "):
+            into = into + " " +interest
+    print("inter : ",into)
+    if role == "student":
+        ınsertNew = """ UPDATE Students SET Interests = '{}' WHERE UserNo = '{}';  """.format(into, userNo)
+        cursor.execute(ınsertNew)
+    elif role == "teacher":
+        ınsertNew = """ UPDATE Teachers SET Interests = '{}' WHERE UserNo = '{}';  """.format(into, userNo)
+        cursor.execute(ınsertNew)
 
 
 def closeDB():

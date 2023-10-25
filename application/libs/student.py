@@ -27,15 +27,6 @@ class StudentWin(Gtk.VBox):
         self.add_text_targets()
         sqlLib.getStudentsLessons(self.parent.ActiveNo)
 
-        create = """ 
-        CREATE TABLE IF NOT EXISTS Students (
-        UserNo INT PRIMARY KEY,
-        StudentNo INT,
-        Name VARCHAR(50),
-        SurName VARCHAR(50),
-        TranskriptPath VARCHAR(255),
-        Note VARCHAR(10))"""
-
         self.nameL = Gtk.Label(label="Name : ")
         self.surnameL = Gtk.Label(label="surname : ")
         self.studentNoL = Gtk.Label(label="Student Number : ")
@@ -46,6 +37,11 @@ class StudentWin(Gtk.VBox):
         self.pack_start(self.studentNoL,0,0,5)
         self.pack_start(self.noteL,0,0,5)
 
+        self.turnbackB = Gtk.Button()
+        self.turnbackB.set_label("Back")
+        self.turnbackB.connect("clicked",self.turnbackBC)
+        self.pack_start(self.turnbackB,0,0,5)
+
         self.updateStudentInfo(None,None)
         
     def add_text_targets(self, button=None):
@@ -54,6 +50,11 @@ class StudentWin(Gtk.VBox):
 
         self.drop_area.drag_dest_add_text_targets()
         self.drag_source_add_text_targets()
+
+    def turnbackBC(self,widget):
+        self.parent.stack.set_visible_child_name("way_select")
+        sqlLib.closeDB()
+        sqlLib.connect()
 
     def lessonButtonC(self,widget):
         self.dialog = LessonDialog(self)

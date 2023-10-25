@@ -21,11 +21,20 @@ class RootWin(Gtk.VBox):
         self.pack_start(self.newUserB,0,0,5)
 
         self.allStudentsB = Gtk.Button()
-        self.allStudentsB.set_label("New User")
+        self.allStudentsB.set_label("Student Datas")
         self.allStudentsB.connect("clicked",self.allStudentsC)
+
+        self.turnbackB = Gtk.Button()
+        self.turnbackB.set_label("Back")
+        self.turnbackB.connect("clicked",self.turnbackBC)
+        self.pack_start(self.turnbackB,0,0,5)
         
         self.pack_start(self.allStudentsB,0,0,5)
 
+    def turnbackBC(self,widget):
+        self.parent.stack.set_visible_child_name("way_select")
+        sqlLib.closeDB()
+        sqlLib.connect()
 
     def newUserC(self,widget):
         self.dialog = NewUserDialog(self)
@@ -45,7 +54,7 @@ class RootWin(Gtk.VBox):
 class allStudentsDialog(Gtk.Dialog):
     def __init__(self, parent):
         super().__init__(title="My Lessons")
-        sqlLib.createRandomStudent(3)
+        #sqlLib.createRandomStudent(3)
         box = self.get_content_area()
         self.parent = parent
         self.set_default_size(650, 600)
@@ -95,7 +104,7 @@ class allStudentsDialog(Gtk.Dialog):
 
         for userNo in sqlLib.getStudents():
             print("userNo :",userNo)
-            studentData = sqlLib.getStudentData(userNo)
+            studentData = sqlLib.getStudentData(userNo)[0]
             print(studentData)
             x = 0
             sData = []
@@ -106,7 +115,44 @@ class allStudentsDialog(Gtk.Dialog):
 
         self.show_all()
 
+class NewTeacgerDialog(Gtk.Dialog):
+    def __init__(self, parent, userNo):
+        super().__init__(title="New Teacher")
+        box = self.get_content_area()
+        self.parent = parent
+        self.userNo = userNo
+        self.set_default_size(650, 600)
 
+        self.regEntery = Gtk.Entry()
+        self.regEntery.set_placeholder_text(" Sicil ")
+        box.pack_start(self.regEntery,0,0,5)
+
+        self.nameEntery = Gtk.Entry()
+        self.nameEntery.set_placeholder_text(" Name ")
+        box.pack_start(self.nameEntery,0,0,5)
+
+        self.surnameEntery = Gtk.Entry()
+        self.surnameEntery.set_placeholder_text(" Surname ")
+        box.pack_start(self.surnameEntery,0,0,5)
+
+        self.maxSEntery = Gtk.Entry()
+        self.maxSEntery.set_placeholder_text(" Max Student ")
+        box.pack_start(self.maxSEntery,0,0,5)
+
+        self.newTeacherB = Gtk.Button()
+        self.newTeacherB.set_label("Create User")
+        self.newTeacherB.connect("clicked",self.createTeacherC)
+        box.pack_start(self.newTeacherB,0,0,5)
+
+        self.show_all()
+
+    def createTeacherC(self, widget):
+        reg = self.regEntery.get_text()
+        name = self.nameEntery.get_text()
+        surname = self.surnameEntery.get_text()
+        maxS = self.maxSEntery.get_text()
+        sqlLib.createnewTeacher(self.userNo, reg, name, surname, maxS)
+        self.destroy()
 
 class NewUserDialog(Gtk.Dialog):
     def __init__(self, parent):
@@ -159,6 +205,10 @@ class NewUserDialog(Gtk.Dialog):
             print("Selected: currency=%s" % role)
             userId = self.idEntery.get_text()
             userPwd = self.pwdEntery.get_text()
-            if sqlLib.createNewUser(userId, userPwd,role):
+            userNo = sqlLib.createNewUser(userId, userPwd,role)
+            if userNo != 0:
+                if role == "teacher":
+                    self.parent.dialog = NewTeacgerDialog(self.parent,userNo)
+                    response = self.parent.dialog.run()
                 self.destroy()
 

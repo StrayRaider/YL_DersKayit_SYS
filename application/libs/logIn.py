@@ -23,6 +23,16 @@ class LogInWin(Gtk.VBox):
         self.logInB.set_label("LogIn")
         self.logInB.connect("clicked",self.logInC)
         self.pack_start(self.logInB,0,0,5)
+
+        self.turnbackB = Gtk.Button()
+        self.turnbackB.set_label("Back")
+        self.turnbackB.connect("clicked",self.turnbackBC)
+        self.pack_start(self.turnbackB,0,0,5)
+
+    def turnbackBC(self,widget):
+        self.parent.stack.set_visible_child_name("way_select")
+        sqlLib.closeDB()
+        sqlLib.connect()
         
     def logInC(self,widget):
         userId = self.idEntery.get_text()
