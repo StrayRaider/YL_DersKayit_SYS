@@ -56,6 +56,21 @@ class LessonDialog(Gtk.Dialog):
         self.nameEntery.set_placeholder_text(" Lesson Name ")
         box.pack_start(self.nameEntery,0,0,5)
 
+        self.newLessonB = Gtk.Button()
+        self.newLessonB.set_label("New Lesson")
+        self.newLessonB.connect("clicked",self.newLesson)
+        box.pack_start(self.newLessonB,0,0,5)
+
+        self.show_all()
+
+    def newLesson(self, widget):
+        tData = sqlLib.getTeacherData(self.parent.parent.ActiveNo)
+        print(tData)
+        text = self.nameEntery.get_text()
+        if text is not None:
+            print("Selected: currency=%s" % text)
+            sqlLib.createNewLesson(text, "1" ,tData[1])
+
 class InterestDialog(Gtk.Dialog):
     def __init__(self, parent):
         super().__init__(title="Interest")
