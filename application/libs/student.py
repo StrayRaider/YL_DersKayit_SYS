@@ -189,7 +189,7 @@ class LessonReq(Gtk.Dialog):
         self.intFilter = None
 
         # lessonNo, lessonName, TeacherName, TeacherReg
-        self.StudentLStore = Gtk.ListStore(str,str,str,str,bool)
+        self.StudentLStore = Gtk.ListStore(str,str,str,str,str,bool)
         self.StudentLTree = Gtk.TreeView(self.StudentLStore)
 
         cell = Gtk.CellRendererText()
@@ -206,22 +206,24 @@ class LessonReq(Gtk.Dialog):
 
         interestColumn = Gtk.TreeViewColumn("TeacherInterest",cell,text = 3)
         #interestColumn.set_max_width(70)
+        regColumn = Gtk.TreeViewColumn("Teacher Reg No",cell,text = 4)
                
         self.StudentLTree.append_column(noColumn)
         self.StudentLTree.append_column(lNameColumn)
         self.StudentLTree.append_column(tNameColumn)
         self.StudentLTree.append_column(interestColumn)
+        self.StudentLTree.append_column(regColumn)
 
         #check button stunu oluşturma işlemi
         #uygun hücre oluşturma
         check_cell = Gtk.CellRendererToggle()
         #hücre içi widget fonksiyon bağlantısı
-        check_cell.connect("toggled", self.requestClicked,4,"i")
+        check_cell.connect("toggled", self.requestClicked,5)
         #satır oluşturma 1. satır adı 2. hücre tipi
-        t_column = Gtk.TreeViewColumn("->",check_cell)
+        t_column = Gtk.TreeViewColumn(" Request ",check_cell)
         #stuna argümanları dışarda bu fonksiyonla da verebilirsin
-        t_column.add_attribute(check_cell,"active",1)
-        t_column.set_max_width(30)
+        t_column.add_attribute(check_cell,"active",5)
+        #t_column.set_max_width(30)
 
         #stun treeview ekleme işlemi
         self.StudentLTree.append_column(t_column)
@@ -266,14 +268,37 @@ class LessonReq(Gtk.Dialog):
         for lesson in ActiveLessons:
             teacherData = sqlLib.getTeacherDataReg(int(lesson[3]))[0]
             lessonData = []
-            print("lesson : ",lesson)
+            reqData = []
+            #print("lesson : ",lesson)
             lessonData.append(str(lesson[1]))
             lessonData.append(str(lesson[2]))
-            print(lesson[3])
-            print(teacherData)
+            #print(lesson[3])
+            #print(teacherData)
             lessonData.append(str(teacherData[2] + teacherData[3]))
             lessonData.append(str(teacherData[5]))
-            lessonData.append("false")
+            lessonData.append(str(teacherData[1]))
+
+            
+            reqData.append(lessonData[0])
+            reqData.append(lessonData[4])
+            reqData.append(sqlLib.getStudentData(self.parent.parent.ActiveNo)[1])
+            found = False
+            for req in sqlLib.getReqs():
+                print(req)      
+                reqD = []
+                reqD.append(str(req[3]))
+                reqD.append(str(req[2]))
+                reqD.append(req[1])
+                
+                print(reqData)      
+                print(reqD)      
+                if reqD == reqData:
+                    print("\nfounded !\n")
+                    lessonData.append(True)
+                    found = True
+                    break
+            if not found:
+                lessonData.append(False)
 
             if self.intFilter != None:
                 teacherInterest = sqlLib.getInterest(teacherData[0],"teacher")[0].split(" ")
@@ -286,8 +311,24 @@ class LessonReq(Gtk.Dialog):
             else:
                 self.StudentLStore.append([*lessonData])
 
-    def requestClicked(self,widget):
-        print("requested")
+    def requestClicked(self,widget,path, column):
+        if path is not None:
+            iter = self.StudentLStore.get_iter(path)
+            print(self.StudentLStore[iter][column])
+            self.StudentLStore[iter][column]= not self.StudentLStore[iter][column]
+            if self.StudentLStore[iter][column]:
+                lessonData = []
+                for i in range(0,column+1):
+                    lessonData.append(self.StudentLStore[iter][i])
+                print(lessonData)
+                print("requested")
+                lessonNo = lessonData[0]
+                regNo = lessonData[4]
+                print(sqlLib.getStudentData(self.parent.parent.ActiveNo))
+                studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
+                sqlLib.newReq(studentNo, regNo, lessonNo)
+                #self.updateListStore()
+        self.show_all()
 
     def filterButtonC(self,widget):
         text = self.intcombo.get_active_text()
@@ -300,7 +341,7 @@ class LessonReq(Gtk.Dialog):
             print("Filter : ",self.intFilter)
             self.updateListStore()
 
-    def on_int_combo_changed(self,widget):
+    def on_int_combo_changed(self, widget):
         print("changed")
 
 
@@ -323,7 +364,7 @@ class DropArea(Gtk.Label):
             lessonList, studentData = ocrRead.runOcr(file)
             sqlLib.NewStudentLessons(self.parent.parent.ActiveNo, lessonList)
             sqlLib.createNewStudent(self.parent.parent.ActiveNo, *studentData, file)
-            self.parent.updateStudentInfo()
+            self.parent.updateStudentInfo(None,None)
             sqlLib.getAllSL()
 
         elif info == TARGET_ENTRY_PIXBUF:

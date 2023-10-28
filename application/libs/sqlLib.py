@@ -317,6 +317,36 @@ def genLessonNo():
         lessonNo = "210201"+str(random.randint(0,200))
     return lessonNo
 
+def createReq():
+    createReqTable = """ 
+        CREATE TABLE IF NOT EXISTS Req (
+        rec INT PRIMARY KEY,
+        StudentNo INT,
+        RegNo INT,
+        LessonNo INT)
+     """
+    try:
+        cursor.execute(createReqTable)
+    except:
+        print("error createing req table")
+
+def newReq(studentNo, regNo, lessonNo):
+    rec = getBig("Req")
+    insertNew = "INSERT INTO Req VALUES ('{}', '{}', '{}', '{}');".format(rec, studentNo, regNo, lessonNo)
+    cursor.execute(insertNew)
+
+def getReqs():
+    ınsertNew = """ SELECT * FROM Req;"""
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print(data)
+    return data
+
+
+def delReq(studentNo, regNo, lessonNo):
+    delData = "DELETE FROM Req WHERE RegNo = '{}', StudentNo = '{}', LessonNo = '{}';".format(studentNo, regNo, lessonNo)
+    cursor.execute(delData)
+
 def closeDB():
     conn.commit()
     cursor.close()
