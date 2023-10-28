@@ -77,7 +77,7 @@ def genUserNo():
         return 1
 
 def getBig(table):
-    cursor.execute("SELECT 'rec' FROM {}".format(table))
+    cursor.execute("SELECT rec FROM {}".format(table))
     idList = []
     try:
         for user in  cursor.fetchall():
@@ -288,8 +288,25 @@ def setInterest(userNo, role, interest):
 def getTeacherData(userNo):
     ınsertNew = """ SELECT * FROM Teachers WHERE UserNo = '{}';  """.format(userNo)
     cursor.execute(ınsertNew)
-    data = cursor.fetchall()[0]
+    data = cursor.fetchall()
     return data
+
+def getTeacherDataReg(regNo):
+    ınsertNew = """ SELECT * FROM Teachers WHERE RegNo = '{}';  """.format(regNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    return data
+
+def getActiveLessons():
+    #rec = getBig("ActiveLessons")
+    lessonList = []
+    ınsertNew = """ SELECT * FROM ActiveLessons;"""
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()[0]
+    print(data)
+    lessonList.append(data)
+    return lessonList
+
 
 
 def closeDB():

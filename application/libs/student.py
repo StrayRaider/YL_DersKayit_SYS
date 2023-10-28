@@ -37,6 +37,11 @@ class StudentWin(Gtk.VBox):
         self.pack_start(self.studentNoL,0,0,5)
         self.pack_start(self.noteL,0,0,5)
 
+        self.reqLB = Gtk.Button()
+        self.reqLB.set_label("Request Lesson")
+        self.reqLB.connect("clicked",self.reqLBC)
+        self.pack_start(self.reqLB,0,0,5)
+
         self.turnbackB = Gtk.Button()
         self.turnbackB.set_label("Back")
         self.turnbackB.connect("clicked",self.turnbackBC)
@@ -56,6 +61,10 @@ class StudentWin(Gtk.VBox):
         sqlLib.closeDB()
         sqlLib.connect()
 
+    def reqLBC(self,widget):
+        self.dialog = LessonReq(self)
+        response = self.dialog.run()
+
     def lessonButtonC(self,widget):
         self.dialog = LessonDialog(self)
         response = self.dialog.run()
@@ -68,7 +77,7 @@ class StudentWin(Gtk.VBox):
 
     def updateStudentInfo(self,widget,cr):
         studentData = sqlLib.getStudentData(self.parent.ActiveNo)
-        print(studentData)
+        #print(studentData)
         if studentData and studentData != []:
             self.nameL.set_text("Name : {}".format(studentData[2]))
             self.surnameL.set_text("surname : {}".format(studentData[3]))
@@ -156,6 +165,87 @@ class LessonDialog(Gtk.Dialog):
 
         box.add(label)
         self.show_all()
+
+
+class LessonReq(Gtk.Dialog):
+    def __init__(self, parent):
+        super().__init__(title="My Lessons")
+        self.parent = parent
+        self.set_default_size(650, 600)
+        box = self.get_content_area()
+
+        # lessonNo, lessonName, TeacherName, TeacherReg
+        self.StudentLStore = Gtk.ListStore(str,str,str,str,bool)
+        self.StudentLTree = Gtk.TreeView(self.StudentLStore)
+
+        cell = Gtk.CellRendererText()
+        cell.set_property("editable", True) #eğer tect değiştirilebilir olsun istersen
+
+        noColumn = Gtk.TreeViewColumn("lessonNo",cell,text = 0)
+        #noColumn.set_max_width(70)
+
+        lNameColumn = Gtk.TreeViewColumn("lessonName",cell,text = 1)
+        #lNameColumn.set_max_width(70)
+
+        tNameColumn = Gtk.TreeViewColumn("teacherName",cell,text = 2)
+        #tNameColumn.set_max_width(70)
+
+        interestColumn = Gtk.TreeViewColumn("TeacherInterest",cell,text = 3)
+        #interestColumn.set_max_width(70)
+               
+        self.StudentLTree.append_column(noColumn)
+        self.StudentLTree.append_column(lNameColumn)
+        self.StudentLTree.append_column(tNameColumn)
+        self.StudentLTree.append_column(interestColumn)
+
+        #check button stunu oluşturma işlemi
+        #uygun hücre oluşturma
+        check_cell = Gtk.CellRendererToggle()
+        #hücre içi widget fonksiyon bağlantısı
+        check_cell.connect("toggled", self.requestClicked,4,"i")
+        #satır oluşturma 1. satır adı 2. hücre tipi
+        t_column = Gtk.TreeViewColumn("->",check_cell)
+        #stuna argümanları dışarda bu fonksiyonla da verebilirsin
+        t_column.add_attribute(check_cell,"active",1)
+        t_column.set_max_width(30)
+
+        #stun treeview ekleme işlemi
+        self.StudentLTree.append_column(t_column)
+
+        #yeni satırlar oluşturma
+        #self.iSongStore.append(["song_name",True,"url"])
+        l_scrolled = Gtk.ScrolledWindow()
+        box.pack_start(l_scrolled,1,1,10)
+        l_scrolled.add(self.StudentLTree)
+
+        print(type(self.parent.parent.ActiveNo))
+        activeNo = self.parent.parent.ActiveNo
+        ActiveLessons = sqlLib.getActiveLessons()
+        print(ActiveLessons)
+        lessonData = []
+        for lesson in ActiveLessons:
+            lessonData.append(str(lesson[1]))
+            lessonData.append(str(lesson[2]))
+            print(lesson[3])
+            teacherData = sqlLib.getTeacherDataReg(int(lesson[3]))[0]
+            print(teacherData)
+            lessonData.append(str(teacherData[2] + teacherData[3]))
+            lessonData.append(str(teacherData[5]))
+            lessonData.append("false")
+            
+                
+            counter = 0
+                
+            self.StudentLStore.append([*lessonData])
+
+
+        label = Gtk.Label(label="This is a dialog to display additional information")
+
+        box.add(label)
+        self.show_all()
+
+    def requestClicked(self,widget):
+        print("requested")
 
 
 class DropArea(Gtk.Label):
