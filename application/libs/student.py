@@ -222,8 +222,9 @@ class LessonReq(Gtk.Dialog):
         activeNo = self.parent.parent.ActiveNo
         ActiveLessons = sqlLib.getActiveLessons()
         print(ActiveLessons)
-        lessonData = []
         for lesson in ActiveLessons:
+            lessonData = []
+            print("lesson : ",lesson)
             lessonData.append(str(lesson[1]))
             lessonData.append(str(lesson[2]))
             print(lesson[3])

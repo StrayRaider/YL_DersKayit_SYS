@@ -84,7 +84,7 @@ def getBig(table):
             idList.append(user[0])
         return max(idList) + 1 
     except:
-        print("error no user No founded")
+        print("error '{}' record".format(table))
         return 1
 
 def createStudentsLessons():
@@ -243,6 +243,7 @@ def createnewTeacher(userNo, regNo, name, surname, maxStudent):
 
 def createNewLesson(lessonName, lessonNo, regNo):
     rec = getBig("ActiveLessons")
+    print("aLesson rec", rec)
     ınsertNew = """ INSERT INTO ActiveLessons VALUES ('{}' , '{}' ,'{}', '{}');  """.format(rec, lessonNo, lessonName, regNo)
     cursor.execute(ınsertNew)
 
@@ -302,10 +303,21 @@ def getActiveLessons():
     lessonList = []
     ınsertNew = """ SELECT * FROM ActiveLessons;"""
     cursor.execute(ınsertNew)
-    data = cursor.fetchall()[0]
+    data = cursor.fetchall()
     print(data)
-    lessonList.append(data)
-    return lessonList
+    return data
+
+
+def genLessonNo():
+    lessons = getActiveLessons()
+    lessonNos = []
+    for lesson in lessons:
+        lessonNos.append(lesson[1])
+    lessonNo = "200200"+str(random.randint(0,200))
+    while lessonNo in lessonNos:
+        lessonNo = "210201"+str(random.randint(0,200))
+    return lessonNo
+    
 
 
 

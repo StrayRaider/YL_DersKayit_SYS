@@ -64,12 +64,12 @@ class LessonDialog(Gtk.Dialog):
         self.show_all()
 
     def newLesson(self, widget):
-        tData = sqlLib.getTeacherData(self.parent.parent.ActiveNo)
-        print(tData)
+        tData = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0]
+        print("tData : ",tData)
         text = self.nameEntery.get_text()
         if text is not None:
             print("Selected: currency=%s" % text)
-            sqlLib.createNewLesson(text, "1" ,tData[1])
+            sqlLib.createNewLesson(text, sqlLib.genLessonNo() ,tData[1])
 
 class InterestDialog(Gtk.Dialog):
     def __init__(self, parent):
