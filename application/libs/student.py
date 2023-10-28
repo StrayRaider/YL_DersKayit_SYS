@@ -1,5 +1,5 @@
 import gi
-from libs import ocrRead, sqlLib
+from libs import ocrRead, sqlLib, teacher
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf
 
@@ -32,6 +32,11 @@ class StudentWin(Gtk.VBox):
         self.studentNoL = Gtk.Label(label="Student Number : ")
         self.noteL = Gtk.Label(label="Grade Avarage : ")
 
+        self.intButton = Gtk.Button()
+        self.intButton.set_label("New Interest")
+        self.intButton.connect("clicked",self.intButtonC)
+        self.pack_start(self.intButton,0,0,5)
+
         self.pack_start(self.nameL,0,0,5)
         self.pack_start(self.surnameL,0,0,5)
         self.pack_start(self.studentNoL,0,0,5)
@@ -48,6 +53,10 @@ class StudentWin(Gtk.VBox):
         self.pack_start(self.turnbackB,0,0,5)
 
         self.updateStudentInfo(None,None)
+
+    def intButtonC(self,widget):
+        self.dialog = teacher.InterestDialog(self,role="student")
+        response = self.dialog.run()
         
     def add_text_targets(self, button=None):
         self.drop_area.drag_dest_set_target_list(None)
@@ -76,13 +85,16 @@ class StudentWin(Gtk.VBox):
             self.dialog.destroy()
 
     def updateStudentInfo(self,widget,cr):
-        studentData = sqlLib.getStudentData(self.parent.ActiveNo)
-        #print(studentData)
-        if studentData and studentData != []:
-            self.nameL.set_text("Name : {}".format(studentData[2]))
-            self.surnameL.set_text("surname : {}".format(studentData[3]))
-            self.studentNoL.set_text("Student Number : {}".format(studentData[1]))
-            self.noteL.set_text("Grade Avarage : {}".format(studentData[5]))
+        try:
+            studentData = sqlLib.getStudentData(self.parent.ActiveNo)
+            #print(studentData)
+            if studentData and studentData != []:
+                self.nameL.set_text("Name : {}".format(studentData[2]))
+                self.surnameL.set_text("surname : {}".format(studentData[3]))
+                self.studentNoL.set_text("Student Number : {}".format(studentData[1]))
+                self.noteL.set_text("Grade Avarage : {}".format(studentData[5]))
+        except:
+            pass
 
         
 class LessonDialog(Gtk.Dialog):
@@ -174,6 +186,8 @@ class LessonReq(Gtk.Dialog):
         self.set_default_size(650, 600)
         box = self.get_content_area()
 
+        self.intFilter = None
+
         # lessonNo, lessonName, TeacherName, TeacherReg
         self.StudentLStore = Gtk.ListStore(str,str,str,str,bool)
         self.StudentLTree = Gtk.TreeView(self.StudentLStore)
@@ -218,35 +232,76 @@ class LessonReq(Gtk.Dialog):
         box.pack_start(l_scrolled,1,1,10)
         l_scrolled.add(self.StudentLTree)
 
+        self.updateListStore()
+
+        label = Gtk.Label(label="This is a dialog to display additional information")
+
+        self.filterButton = Gtk.Button()
+        self.filterButton.set_label("Filter")
+        self.filterButton.connect("clicked",self.filterButtonC)
+        box.pack_start(self.filterButton,0,0,5)
+
+        interests = [
+            "None",
+            "OS",
+            "AI"
+        ]
+        self.intcombo = Gtk.ComboBoxText()
+        self.intcombo.set_entry_text_column(0)
+        self.intcombo.connect("changed", self.on_int_combo_changed)
+        for interest in interests:
+            self.intcombo.append_text(interest)
+
+        box.pack_start(self.intcombo, False, False, 5)
+
+        box.add(label)
+        self.show_all()
+
+    def updateListStore(self):
+        self.StudentLStore.clear()
         print(type(self.parent.parent.ActiveNo))
         activeNo = self.parent.parent.ActiveNo
         ActiveLessons = sqlLib.getActiveLessons()
         print(ActiveLessons)
         for lesson in ActiveLessons:
+            teacherData = sqlLib.getTeacherDataReg(int(lesson[3]))[0]
             lessonData = []
             print("lesson : ",lesson)
             lessonData.append(str(lesson[1]))
             lessonData.append(str(lesson[2]))
             print(lesson[3])
-            teacherData = sqlLib.getTeacherDataReg(int(lesson[3]))[0]
             print(teacherData)
             lessonData.append(str(teacherData[2] + teacherData[3]))
             lessonData.append(str(teacherData[5]))
             lessonData.append("false")
-            
-                
-            counter = 0
-                
-            self.StudentLStore.append([*lessonData])
 
-
-        label = Gtk.Label(label="This is a dialog to display additional information")
-
-        box.add(label)
-        self.show_all()
+            if self.intFilter != None:
+                teacherInterest = sqlLib.getInterest(teacherData[0],"teacher")[0].split(" ")
+                for i in teacherInterest:
+                    if i != self.intFilter:
+                        print("not interested")
+                    else:
+                        self.StudentLStore.append([*lessonData])
+                        break
+            else:
+                self.StudentLStore.append([*lessonData])
 
     def requestClicked(self,widget):
         print("requested")
+
+    def filterButtonC(self,widget):
+        text = self.intcombo.get_active_text()
+        if text is not None:
+            print("Selected: currency=%s" % text)
+            if text == "None":
+                self.intFilter = None
+            else:    
+                self.intFilter = text
+            print("Filter : ",self.intFilter)
+            self.updateListStore()
+
+    def on_int_combo_changed(self,widget):
+        print("changed")
 
 
 class DropArea(Gtk.Label):

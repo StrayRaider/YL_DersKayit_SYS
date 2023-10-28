@@ -271,7 +271,7 @@ def setInterest(userNo, role, interest):
     if interestold != None:
         x = 0
         for i in interestold:
-            if not x :
+            if x == 0 :
                 into = str(i)
             else:
                 into = into + " " +str(i)
@@ -307,7 +307,6 @@ def getActiveLessons():
     print(data)
     return data
 
-
 def genLessonNo():
     lessons = getActiveLessons()
     lessonNos = []
@@ -317,9 +316,6 @@ def genLessonNo():
     while lessonNo in lessonNos:
         lessonNo = "210201"+str(random.randint(0,200))
     return lessonNo
-    
-
-
 
 def closeDB():
     conn.commit()

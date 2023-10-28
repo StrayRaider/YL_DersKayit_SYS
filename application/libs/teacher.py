@@ -72,8 +72,9 @@ class LessonDialog(Gtk.Dialog):
             sqlLib.createNewLesson(text, sqlLib.genLessonNo() ,tData[1])
 
 class InterestDialog(Gtk.Dialog):
-    def __init__(self, parent):
+    def __init__(self, parent,role="teacher"):
         super().__init__(title="Interest")
+        self.role = role
         self.parent = parent
         self.set_default_size(650, 600)
         box = self.get_content_area()
@@ -92,13 +93,13 @@ class InterestDialog(Gtk.Dialog):
         self.intcombo.set_active(0)
         box.pack_start(self.intcombo, False, False, 5)
 
-        interests = sqlLib.getInterest(self.parent.parent.ActiveNo,"teacher")
+        interests = sqlLib.getInterest(self.parent.parent.ActiveNo,self.role)
 
         self.label = Gtk.Label(interests)
         box.pack_start(self.label,0,0,5)
 
         self.newIntB = Gtk.Button()
-        self.newIntB.set_label("New User")
+        self.newIntB.set_label("New Interest")
         self.newIntB.connect("clicked",self.newIntC)
         box.pack_start(self.newIntB,0,0,5)
 
@@ -110,8 +111,9 @@ class InterestDialog(Gtk.Dialog):
         if text is not None:
             print("Selected: currency=%s" % text)
             #add interest to teacher
-            sqlLib.setInterest(self.parent.parent.ActiveNo, "teacher", text)
-            interests = sqlLib.getInterest(self.parent.parent.ActiveNo,"teacher")
+            print(self.role)
+            sqlLib.setInterest(self.parent.parent.ActiveNo, self.role, text)
+            interests = sqlLib.getInterest(self.parent.parent.ActiveNo,self.role)
             self.label.set_text(str(interests))
 
 
