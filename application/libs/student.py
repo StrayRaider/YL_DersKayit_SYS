@@ -333,18 +333,23 @@ class LessonReq(Gtk.Dialog):
             iter = self.StudentLStore.get_iter(path)
             print(self.StudentLStore[iter][column])
             self.StudentLStore[iter][column]= not self.StudentLStore[iter][column]
+
+            lessonData = []
+            for i in range(0,column+1):
+                lessonData.append(self.StudentLStore[iter][i])
+            print(lessonData)
+            print("requested")
+            lessonNo = lessonData[0]
+            regNo = lessonData[4]
+            print(sqlLib.getStudentData(self.parent.parent.ActiveNo))
+            studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
+
+            #create req
             if self.StudentLStore[iter][column]:
-                lessonData = []
-                for i in range(0,column+1):
-                    lessonData.append(self.StudentLStore[iter][i])
-                print(lessonData)
-                print("requested")
-                lessonNo = lessonData[0]
-                regNo = lessonData[4]
-                print(sqlLib.getStudentData(self.parent.parent.ActiveNo))
-                studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
                 sqlLib.newReq(studentNo, regNo, lessonNo)
-                #self.updateListStore()
+            #delete req
+            else:
+                sqlLib.delReq(studentNo, regNo, lessonNo)
         self.show_all()
 
     def filterButtonC(self,widget):

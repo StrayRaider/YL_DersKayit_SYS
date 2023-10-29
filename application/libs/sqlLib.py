@@ -344,7 +344,7 @@ def getReqs():
 
 
 def delReq(studentNo, regNo, lessonNo):
-    delData = "DELETE FROM Req WHERE RegNo = '{}', StudentNo = '{}', LessonNo = '{}';".format(studentNo, regNo, lessonNo)
+    delData = "DELETE FROM Req WHERE RegNo = '{}' and StudentNo = '{}' and LessonNo = '{}';".format(regNo, studentNo, lessonNo)
     cursor.execute(delData)
 
 def closeDB():
