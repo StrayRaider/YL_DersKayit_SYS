@@ -54,6 +54,9 @@ class StudentWin(Gtk.VBox):
 
         self.updateStudentInfo(None,None)
 
+        self.dialog = Messager(self)
+        response = self.dialog.run()
+
     def intButtonC(self,widget):
         self.dialog = teacher.InterestDialog(self,role="student")
         response = self.dialog.run()
@@ -407,3 +410,43 @@ class DropArea(Gtk.Label):
         else:
             print("unknown recieved")
 
+
+
+class Messager(Gtk.Dialog):
+    def __init__(self, parent):
+        super().__init__(title=" Messager ")
+        self.parent = parent
+        self.set_default_size(650, 600)
+        box = self.get_content_area()
+
+        self.maxLen = 100
+
+        scrolledwindow = Gtk.ScrolledWindow()
+        scrolledwindow.set_hexpand(True)
+        scrolledwindow.set_vexpand(True)
+        box.pack_start(scrolledwindow, 0, 1, 5)
+
+        self.textview = Gtk.TextView()
+        self.textbuffer = self.textview.get_buffer()
+        self.textbuffer.set_text(
+            " Wirte Your Message Here "
+        )
+        scrolledwindow.add(self.textview)
+
+        self.sendButton = Gtk.Button()
+        self.sendButton.set_label("Send")
+        self.sendButton.connect("clicked",self.sendC)
+        box.pack_start(self.sendButton,0,0,5)
+
+        self.show_all()
+
+    def sendC(self, widget):
+        start_iter = self.textbuffer.get_start_iter()
+        end_iter = self.textbuffer.get_end_iter()
+        text = self.textbuffer.get_text(start_iter, end_iter, True)
+        leng = len(text)
+        print(leng)
+        if leng < self.maxLen:
+            print(text)
+        else:
+            print("error too big data to send")
