@@ -187,6 +187,7 @@ class LessonReq(Gtk.Dialog):
         box = self.get_content_area()
 
         self.intFilter = None
+        self.noFilter = None
 
         # lessonNo, lessonName, TeacherName, TeacherReg
         self.StudentLStore = Gtk.ListStore(str,str,str,str,str,bool)
@@ -238,6 +239,10 @@ class LessonReq(Gtk.Dialog):
 
         label = Gtk.Label(label="This is a dialog to display additional information")
 
+        self.lessonNoEntery = Gtk.Entry()
+        self.lessonNoEntery.set_placeholder_text(" Lesson NO ")
+        box.pack_start(self.lessonNoEntery,0,0,5)
+
         self.filterButton = Gtk.Button()
         self.filterButton.set_label("Filter")
         self.filterButton.connect("clicked",self.filterButtonC)
@@ -283,6 +288,7 @@ class LessonReq(Gtk.Dialog):
             reqData.append(lessonData[4])
             reqData.append(sqlLib.getStudentData(self.parent.parent.ActiveNo)[1])
             found = False
+            lessonSellected = False
             for req in sqlLib.getReqs():
                 print(req)      
                 reqD = []
@@ -300,16 +306,27 @@ class LessonReq(Gtk.Dialog):
             if not found:
                 lessonData.append(False)
 
+            print(self.noFilter, lessonData[0])
+            if self.noFilter != None:
+                lessonSellected = True
+                if lessonData[0] != self.noFilter:
+                    print("not sellected lesson")
+                    lessonSellected = False
+            else:
+                lessonSellected = True
+
             if self.intFilter != None:
                 teacherInterest = sqlLib.getInterest(teacherData[0],"teacher")[0].split(" ")
                 for i in teacherInterest:
                     if i != self.intFilter:
                         print("not interested")
                     else:
-                        self.StudentLStore.append([*lessonData])
-                        break
+                        if lessonSellected:
+                            self.StudentLStore.append([*lessonData])
+                            break
             else:
-                self.StudentLStore.append([*lessonData])
+                if lessonSellected:
+                    self.StudentLStore.append([*lessonData])
 
     def requestClicked(self,widget,path, column):
         if path is not None:
@@ -331,6 +348,14 @@ class LessonReq(Gtk.Dialog):
         self.show_all()
 
     def filterButtonC(self,widget):
+        lessonNo = self.lessonNoEntery.get_text()
+        if lessonNo is not None:
+            print("Selected: currency=%s" % lessonNo)
+            if lessonNo == "":
+                self.noFilter = None
+            else:    
+                self.noFilter = lessonNo
+            print("Filter : ",self.noFilter)
         text = self.intcombo.get_active_text()
         if text is not None:
             print("Selected: currency=%s" % text)
