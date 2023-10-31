@@ -376,6 +376,13 @@ def getMessages(number, role):
     print("message : ",data)
     return data
 
+def getLessonName(lessonNo):
+    ınsertNew = """ SELECT LessonName FROM ActiveLessons WHERE LessonNo = '{}';""".format(lessonNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print("lessonName : ",data)
+    return data
+
 
 def closeDB():
     conn.commit()

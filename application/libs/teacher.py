@@ -32,37 +32,11 @@ class TeacherWin(Gtk.VBox):
         #self.connect("draw",self.updateMessages)
         print(self.parent.ActiveNo)
 
-        grid = Gtk.Grid()
-        self.add(grid)
 
-        layout = Gtk.Layout()
-        layout.set_size(800, 500)
-        layout.set_vexpand(True)
-        layout.set_hexpand(True)
-
-        self.vBox = Gtk.VBox() 
-
-        button = Gtk.Button(label="Button 1")
-        self.vBox.pack_start(button,0,0,5)
-        button = Gtk.Button(label="Button 2")
-        self.vBox.pack_start(button,0,0,5)
-        button = Gtk.Button(label="Button 3")
-        self.vBox.pack_start(button,0,0,5)
-
-        layout.put(self.vBox,0,0)
-
-        grid.attach(layout, 0, 0, 1, 1)
-
-        vadjustment = layout.get_vadjustment()
-        hadjustment = layout.get_hadjustment()
-
-        vscrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.VERTICAL,
-                                   adjustment=vadjustment)
-        grid.attach(vscrollbar, 1, 0, 1, 1)
-        hscrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.HORIZONTAL,
-                                   adjustment=hadjustment)
-        grid.attach(hscrollbar, 0, 1, 1, 1)
-
+        self.reqLB = Gtk.Button()
+        self.reqLB.set_label("Requests")
+        self.reqLB.connect("clicked",self.reqLBC)
+        self.pack_start(self.reqLB,0,0,5)
 
 
         self.MessageB = Gtk.Button()
@@ -103,6 +77,11 @@ class TeacherWin(Gtk.VBox):
     def intButtonC(self,widget):
         self.dialog = InterestDialog(self)
         response = self.dialog.run()
+
+    def reqLBC(self,widget):
+        self.dialog = reqAndMessages(self)
+        response = self.dialog.run()
+
 
 class LessonDialog(Gtk.Dialog):
     def __init__(self, parent):
@@ -175,8 +154,131 @@ class InterestDialog(Gtk.Dialog):
             interests = sqlLib.getInterest(self.parent.parent.ActiveNo,self.role)
             self.label.set_text(str(interests))
 
-
     def on_int_combo_changed(self, widget):
         text = self.intcombo.get_active_text()
         if text is not None:
             print("Selected: currency=%s" % text)
+
+class reqAndMessages(Gtk.Dialog):
+    def __init__(self, parent):
+        super().__init__(title="Student Requests")
+        self.parent = parent
+        self.set_default_size(650, 600)
+        box = self.get_content_area()
+
+        self.intFilter = None
+        self.noFilter = None
+
+        # lessonNo, lessonName, StudentNo
+        self.StudentLStore = Gtk.ListStore(str,str,str,bool)
+        self.StudentLTree = Gtk.TreeView(self.StudentLStore)
+
+        cell = Gtk.CellRendererText()
+        cell.set_property("editable", True) #eğer tect değiştirilebilir olsun istersen
+
+        noColumn = Gtk.TreeViewColumn("lessonNo",cell,text = 0)
+        #noColumn.set_max_width(70)
+
+        lNameColumn = Gtk.TreeViewColumn("lessonName",cell,text = 1)
+        #lNameColumn.set_max_width(70)
+
+        sNoColumn = Gtk.TreeViewColumn("StudentNo",cell,text = 2)
+        #tNameColumn.set_max_width(70)
+
+               
+        self.StudentLTree.append_column(noColumn)
+        self.StudentLTree.append_column(lNameColumn)
+        self.StudentLTree.append_column(sNoColumn)
+
+        #check button stunu oluşturma işlemi
+        #uygun hücre oluşturma
+        check_cell = Gtk.CellRendererToggle()
+        #hücre içi widget fonksiyon bağlantısı
+        check_cell.connect("toggled", self.acceptClicked,3)
+        #satır oluşturma 1. satır adı 2. hücre tipi
+        t_column = Gtk.TreeViewColumn(" Accept ",check_cell)
+        #stuna argümanları dışarda bu fonksiyonla da verebilirsin
+        t_column.add_attribute(check_cell,"active",5)
+        #t_column.set_max_width(30)
+
+        #stun treeview ekleme işlemi
+        self.StudentLTree.append_column(t_column)
+
+        #yeni satırlar oluşturma
+        #self.iSongStore.append(["song_name",True,"url"])
+        l_scrolled = Gtk.ScrolledWindow()
+        box.pack_start(l_scrolled,1,1,10)
+        l_scrolled.add(self.StudentLTree)
+
+        self.updateListStore()
+
+        label = Gtk.Label(label="This is a dialog to display additional information")
+
+        box.add(label)
+        self.show_all()
+
+    def updateListStore(self):
+        self.StudentLStore.clear()
+        print(type(self.parent.parent.ActiveNo))
+        activeNo = self.parent.parent.ActiveNo
+        for req in sqlLib.getReqs():
+            print(req)      
+            reqD = []
+            reqD.append(str(req[3]))
+            # get lesson Name
+            reqD.append(str(sqlLib.getLessonName(req[3])[0][0]))
+            reqD.append(str(req[1]))
+              
+            print(reqD)      
+        try:
+            self.StudentLStore.append([*reqD, False])
+        except:
+            print("no request founded")
+
+    def acceptClicked(self,widget,path, column):
+        iter = self.StudentLStore.get_iter(path)
+        reqData = []
+        for i in range(0,column+1):
+            reqData.append(self.StudentLStore[iter][i])
+        print(reqData)
+        print("Accepted")
+        regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
+        sqlLib.delReq(reqData[2], regNo, reqData[0])
+
+            #create req
+            #if self.StudentLStore[iter][column]:
+                #self.createMessager(regNo)
+                #sqlLib.newReq(studentNo, regNo, lessonNo)
+            #delete req
+            #else:
+        self.show_all()
+        self.updateListStore()
+
+    def createMessager(self,regNo):
+        studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
+        print("here",regNo)
+        self.dialog = Messager(self,studentNo, regNo)
+        response = self.dialog.run()
+        return response
+
+    def filterButtonC(self,widget):
+        lessonNo = self.lessonNoEntery.get_text()
+        if lessonNo is not None:
+            print("Selected: currency=%s" % lessonNo)
+            if lessonNo == "":
+                self.noFilter = None
+            else:    
+                self.noFilter = lessonNo
+            print("Filter : ",self.noFilter)
+        text = self.intcombo.get_active_text()
+        if text is not None:
+            print("Selected: currency=%s" % text)
+            if text == "None":
+                self.intFilter = None
+            else:    
+                self.intFilter = text
+            print("Filter : ",self.intFilter)
+            self.updateListStore()
+
+    def on_int_combo_changed(self, widget):
+        print("changed")
