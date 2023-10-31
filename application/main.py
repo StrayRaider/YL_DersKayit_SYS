@@ -8,8 +8,9 @@ from gi.repository import Gtk
 sqlLib.connect()
 
 #sqlLib.dropLogIn()
-sqlLib.droptable("Req")
+#sqlLib.droptable("Req")
 sqlLib.createLogIn()
+sqlLib.createMessages()
 sqlLib.createReq()
 sqlLib.createStudentTable()
 sqlLib.createActiveLessons()

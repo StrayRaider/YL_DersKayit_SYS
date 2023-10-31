@@ -26,6 +26,65 @@ class TeacherWin(Gtk.VBox):
         self.turnbackB.connect("clicked",self.turnbackBC)
         self.pack_start(self.turnbackB,0,0,5)
 
+        self.messageLabel = Gtk.Label("message : ")
+        self.pack_start(self.messageLabel,0,0,5)
+
+        #self.connect("draw",self.updateMessages)
+        print(self.parent.ActiveNo)
+
+        grid = Gtk.Grid()
+        self.add(grid)
+
+        layout = Gtk.Layout()
+        layout.set_size(800, 500)
+        layout.set_vexpand(True)
+        layout.set_hexpand(True)
+
+        self.vBox = Gtk.VBox() 
+
+        button = Gtk.Button(label="Button 1")
+        self.vBox.pack_start(button,0,0,5)
+        button = Gtk.Button(label="Button 2")
+        self.vBox.pack_start(button,0,0,5)
+        button = Gtk.Button(label="Button 3")
+        self.vBox.pack_start(button,0,0,5)
+
+        layout.put(self.vBox,0,0)
+
+        grid.attach(layout, 0, 0, 1, 1)
+
+        vadjustment = layout.get_vadjustment()
+        hadjustment = layout.get_hadjustment()
+
+        vscrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.VERTICAL,
+                                   adjustment=vadjustment)
+        grid.attach(vscrollbar, 1, 0, 1, 1)
+        hscrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.HORIZONTAL,
+                                   adjustment=hadjustment)
+        grid.attach(hscrollbar, 0, 1, 1, 1)
+
+
+
+        self.MessageB = Gtk.Button()
+        self.MessageB.set_label("Message")
+        self.MessageB.connect("clicked",self.updateMessages)
+        self.pack_start(self.MessageB,0,0,5)
+
+
+    def updateMessages(self,widget):
+        print(" ")
+        print(self.parent.ActiveNo)
+        regNo = sqlLib.getTeacherData(self.parent.ActiveNo)[0][1]
+        print("reg : ",regNo)
+        if regNo:
+            message = sqlLib.getMessages(regNo, "teacher")
+            txtmessage = ""
+            for i in message:
+                txtmessage = txtmessage + str(i)
+            print(txtmessage)
+            self.messageLabel.set_text("message : " + txtmessage)
+
+
     def turnbackBC(self,widget):
         self.parent.stack.set_visible_child_name("way_select")
         sqlLib.closeDB()

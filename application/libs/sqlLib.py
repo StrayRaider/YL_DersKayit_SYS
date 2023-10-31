@@ -77,7 +77,7 @@ def genUserNo():
         return 1
 
 def getBig(table):
-    cursor.execute("SELECT rec FROM {}".format(table))
+    cursor.execute("SELECT rec FROM {};".format(table))
     idList = []
     try:
         for user in  cursor.fetchall():
@@ -346,6 +346,36 @@ def getReqs():
 def delReq(studentNo, regNo, lessonNo):
     delData = "DELETE FROM Req WHERE RegNo = '{}' and StudentNo = '{}' and LessonNo = '{}';".format(regNo, studentNo, lessonNo)
     cursor.execute(delData)
+
+
+def createMessages():
+    createReqTable = """ 
+        CREATE TABLE IF NOT EXISTS Messages (
+        rec INT PRIMARY KEY,
+        StudentNo INT,
+        RegNo INT,
+        MessageText VARCHAR(1023))
+     """
+    try:
+        cursor.execute(createReqTable)
+    except:
+        print("error createing messages table")
+
+def sendMessage(studentNo, regNo, messageText):
+    rec = getBig("Messages")
+    insertNew = "INSERT INTO Messages VALUES ('{}', '{}', '{}', '{}');".format(rec, studentNo, regNo, messageText)
+    cursor.execute(insertNew)
+
+def getMessages(number, role):
+    if role == "teacher":
+        ınsertNew = """ SELECT * FROM Messages WHERE RegNo = '{}';""".format(number)
+    else:
+        ınsertNew = """ SELECT * FROM Messages WHERE StudentNo = '{}';""".format(number)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print("message : ",data)
+    return data
+
 
 def closeDB():
     conn.commit()

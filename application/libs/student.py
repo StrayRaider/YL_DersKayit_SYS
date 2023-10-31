@@ -54,8 +54,6 @@ class StudentWin(Gtk.VBox):
 
         self.updateStudentInfo(None,None)
 
-        self.dialog = Messager(self)
-        response = self.dialog.run()
 
     def intButtonC(self,widget):
         self.dialog = teacher.InterestDialog(self,role="student")
@@ -349,11 +347,19 @@ class LessonReq(Gtk.Dialog):
 
             #create req
             if self.StudentLStore[iter][column]:
+                self.createMessager(regNo)
                 sqlLib.newReq(studentNo, regNo, lessonNo)
             #delete req
             else:
                 sqlLib.delReq(studentNo, regNo, lessonNo)
         self.show_all()
+
+    def createMessager(self,regNo):
+        studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
+        print("here",regNo)
+        self.dialog = Messager(self,studentNo, regNo)
+        response = self.dialog.run()
+        return response
 
     def filterButtonC(self,widget):
         lessonNo = self.lessonNoEntery.get_text()
@@ -413,11 +419,13 @@ class DropArea(Gtk.Label):
 
 
 class Messager(Gtk.Dialog):
-    def __init__(self, parent):
+    def __init__(self, parent, studentNo, regNo):
         super().__init__(title=" Messager ")
         self.parent = parent
         self.set_default_size(650, 600)
         box = self.get_content_area()
+        self.studentNo = studentNo
+        self.regNo = regNo
 
         self.maxLen = 100
 
@@ -448,5 +456,7 @@ class Messager(Gtk.Dialog):
         print(leng)
         if leng < self.maxLen:
             print(text)
+            sqlLib.sendMessage(self.studentNo, self.regNo, text)
+            sqlLib.getMessages(self.regNo,"teacher")
         else:
             print("error too big data to send")
