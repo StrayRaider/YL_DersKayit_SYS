@@ -307,10 +307,13 @@ def getActiveLessons():
     print(data)
     return data
 
-def genLessonNo():
+def genLessonNo(lessonName):
     lessons = getActiveLessons()
     lessonNos = []
+    lessonNames = []
     for lesson in lessons:
+        if lessonName == lesson[2]:
+            return lesson[1]
         lessonNos.append(lesson[1])
     lessonNo = "200200"+str(random.randint(0,200))
     while lessonNo in lessonNos:
@@ -383,19 +386,32 @@ def getLessonName(lessonNo):
     print("lessonName : ",data)
     return data
 
-def getStudentsNoReqForTeacher():
+
+def getTeachersActiveL(regNo):
+    ınsertNew = """ SELECT LessonNo FROM ActiveLessons WHERE RegNo = '{}';""".format(regNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    data = parseData(data)
+    print(data)
+    return data
+# bu ogrenci için : hocanın verdiği ders için onaylanmış talebi bulunmayan
+def getStudentsNoReqForTeacher(regNo):
+    teachersL = getTeachersActiveL(regNo)
     students = getStudents()
-    acceptedStudents = []
+    searchedStudents = []
     for student in students:
         studentData = getStudentData(student) 
         studentNo = studentData[1]
         print(studentData)
-        if(getAcceptedLesson(studentNo)):
-            print("has accepted lesson")
-        else:
-            acceptedStudents.append(student)
-    print("accepted S : ",acceptedStudents)
-            
+        acceptedL = getAcceptedLesson(studentNo)
+        for lesson in teachersL:
+            print("heree : ",lesson, acceptedL)
+            if lesson not in acceptedL:
+                print("öğrencinin alabileceği ders var")
+                searchedStudents.append(student)
+                break
+    print("accepted S : ",searchedStudents)
+    return searchedStudents
 
 def createAcceptedLessons():
     createALTable = """ 
@@ -417,14 +433,29 @@ def acceptLesson(studentNo, regNo, lessonNo):
     cursor.execute(insertNew)
 
 def getAcceptedLesson(studentNo):
-    try:
-        ınsertNew = """ SELECT * FROM AcceptedLessons WHERE StudentNo = '{}';""".format(StudentNo)
-        cursor.execute(ınsertNew)
-        data = cursor.fetchall()
-        print("Accepted Lesson : ",data)
-        return data
-    except:
-        return False
+    ınsertNew = """ SELECT LessonNo FROM AcceptedLessons WHERE StudentNo = '{}';""".format(studentNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    data = parseData(data)
+    print("Accepted Lesson : ",data)
+    return data
+
+def getStudentsReqs(studentNo, lessonNo):
+    ınsertNew = """ SELECT * FROM Req WHERE StudentNo = '{}' and LessonNo = '{}';""".format(studentNo, lessonNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print(data)
+    return data
+
+
+
+def getReqC(studentNo, lessonNo):
+    reqs = getStudentsReqs(studentNo,lessonNo)
+    counter = 0
+    for req in reqs:
+        counter += 1
+    print(counter)
+    return counter
 
 
 def closeDB():

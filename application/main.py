@@ -8,7 +8,7 @@ from gi.repository import Gtk
 sqlLib.connect()
 
 #sqlLib.dropLogIn()
-#sqlLib.droptable("Req")
+#sqlLib.droptable("ActiveLessons")
 sqlLib.createLogIn()
 sqlLib.createMessages()
 sqlLib.createReq()
@@ -41,7 +41,7 @@ if(sqlLib.LogIn("emre", "1234", "student")):
 
 print("\n\n")
 print("\n students \n")
-sqlLib.getStudentsNoReqForTeacher()
+#sqlLib.getStudentsNoReqForTeacher()
 print("\n\n")
 
 

@@ -47,13 +47,24 @@ class StudentWin(Gtk.VBox):
         self.reqLB.connect("clicked",self.reqLBC)
         self.pack_start(self.reqLB,0,0,5)
 
+        self.readM = Gtk.Button()
+        self.readM.set_label("Read Messages")
+        self.readM.connect("clicked",self.readMC)
+        self.pack_start(self.readM,0,0,5)
+
         self.turnbackB = Gtk.Button()
         self.turnbackB.set_label("Back")
         self.turnbackB.connect("clicked",self.turnbackBC)
         self.pack_start(self.turnbackB,0,0,5)
 
+
         self.updateStudentInfo(None,None)
 
+
+    def readMC(self,widget):
+        studentNo = studentData = sqlLib.getStudentData(self.parent.ActiveNo)[1]
+        self.dialog = teacher.readMessages(self, studentNo, "student")
+        response = self.dialog.run()
 
     def intButtonC(self,widget):
         self.dialog = teacher.InterestDialog(self,role="student")
@@ -347,8 +358,12 @@ class LessonReq(Gtk.Dialog):
 
             #create req
             if self.StudentLStore[iter][column]:
-                self.createMessager(regNo)
-                sqlLib.newReq(studentNo, regNo, lessonNo)
+                maxTeacherC = 1
+                if sqlLib.getReqC(studentNo, lessonNo) < maxTeacherC:
+                    self.createMessager(regNo)
+                    sqlLib.newReq(studentNo, regNo, lessonNo)
+                else:
+                    print("No more request limit")
             #delete req
             else:
                 sqlLib.delReq(studentNo, regNo, lessonNo)
