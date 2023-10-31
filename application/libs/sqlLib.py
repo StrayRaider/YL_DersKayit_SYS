@@ -383,6 +383,49 @@ def getLessonName(lessonNo):
     print("lessonName : ",data)
     return data
 
+def getStudentsNoReqForTeacher():
+    students = getStudents()
+    acceptedStudents = []
+    for student in students:
+        studentData = getStudentData(student) 
+        studentNo = studentData[1]
+        print(studentData)
+        if(getAcceptedLesson(studentNo)):
+            print("has accepted lesson")
+        else:
+            acceptedStudents.append(student)
+    print("accepted S : ",acceptedStudents)
+            
+
+def createAcceptedLessons():
+    createALTable = """ 
+        CREATE TABLE IF NOT EXISTS AcceptedLessons (
+        rec INT PRIMARY KEY,
+        StudentNo INT,
+        RegNo INT,
+        LessonNo INT)
+     """
+    try:
+        cursor.execute(createALTable)
+    except:
+        print("error createing Aciteve Lessons table")
+
+
+def acceptLesson(studentNo, regNo, lessonNo):
+    rec = getBig("AcceptedLessons")
+    insertNew = "INSERT INTO AcceptedLessons VALUES ('{}', '{}', '{}', '{}');".format(rec, studentNo, regNo, lessonNo)
+    cursor.execute(insertNew)
+
+def getAcceptedLesson(studentNo):
+    try:
+        ınsertNew = """ SELECT * FROM AcceptedLessons WHERE StudentNo = '{}';""".format(StudentNo)
+        cursor.execute(ınsertNew)
+        data = cursor.fetchall()
+        print("Accepted Lesson : ",data)
+        return data
+    except:
+        return False
+
 
 def closeDB():
     conn.commit()

@@ -45,18 +45,13 @@ class TeacherWin(Gtk.VBox):
         self.pack_start(self.MessageB,0,0,5)
 
 
+
     def updateMessages(self,widget):
-        print(" ")
-        print(self.parent.ActiveNo)
         regNo = sqlLib.getTeacherData(self.parent.ActiveNo)[0][1]
-        print("reg : ",regNo)
-        if regNo:
-            message = sqlLib.getMessages(regNo, "teacher")
-            txtmessage = ""
-            for i in message:
-                txtmessage = txtmessage + str(i)
-            print(txtmessage)
-            self.messageLabel.set_text("message : " + txtmessage)
+
+        self.dialog = readMessages(self,regNo,"teacher")
+        response = self.dialog.run()
+
 
 
     def turnbackBC(self,widget):
@@ -244,6 +239,7 @@ class reqAndMessages(Gtk.Dialog):
         print("Accepted")
         regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
         sqlLib.delReq(reqData[2], regNo, reqData[0])
+        sqlLib.acceptLesson(reqData[2],regNo,reqData[0])
 
             #create req
             #if self.StudentLStore[iter][column]:
@@ -282,3 +278,51 @@ class reqAndMessages(Gtk.Dialog):
 
     def on_int_combo_changed(self, widget):
         print("changed")
+
+
+
+class readMessages(Gtk.Dialog):
+    def __init__(self, parent,number, role):
+        super().__init__(title="My Messages")
+        self.parent = parent
+        self.set_default_size(650, 600)
+        box = self.get_content_area()
+        self.set_border_width(10)
+
+        l_scrolled = Gtk.ScrolledWindow()
+        box.pack_start(l_scrolled,1,1,10)
+
+        box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        l_scrolled.add(box_outer)
+
+        listbox = Gtk.ListBox()
+        listbox.set_selection_mode(Gtk.SelectionMode.NONE)
+        box_outer.pack_start(listbox, True, True, 0)
+
+
+        print(" ")
+        #print(self.parent.ActiveNo)
+        #print("reg : ",regNo)
+        if number:
+            message = sqlLib.getMessages(number, role)
+            txtmessage = ""
+            for i in message:
+                txtmessage = txtmessage + str(i)
+                #print(txtmessage)
+                #self.messageLabel.set_text("message : " + txtmessage)
+
+                row = Gtk.ListBoxRow()
+                hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=50)
+                row.add(hbox)
+                vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+                hbox.pack_start(vbox, True, True, 0)
+
+                label2 = Gtk.Label(label=str(i)+"\n\n\n\n\n", xalign=0)
+                vbox.pack_start(label2, True, True, 0)
+
+                switch = Gtk.Switch()
+                switch.props.valign = Gtk.Align.CENTER
+                hbox.pack_start(switch, False, True, 0)
+
+                listbox.add(row)
+        self.show_all()

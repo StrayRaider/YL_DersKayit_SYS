@@ -16,6 +16,7 @@ sqlLib.createStudentTable()
 sqlLib.createActiveLessons()
 #sqlLib.droptable("Teachers")
 sqlLib.createTeacherTable()
+sqlLib.createAcceptedLessons()
 
 #sqlLib.droptable("Lessons")
 #sqlLib.createLessons()
@@ -38,6 +39,10 @@ if(sqlLib.LogIn("emre", "1234", "student")):
 # use fetchall instead
 #print(cursor.fetchall())
 
+print("\n\n")
+print("\n students \n")
+sqlLib.getStudentsNoReqForTeacher()
+print("\n\n")
 
 
 win = window.MyWindow()
