@@ -298,9 +298,12 @@ class LessonReq(Gtk.Dialog):
             
             reqData.append(lessonData[0])
             reqData.append(lessonData[4])
-            reqData.append(sqlLib.getStudentData(self.parent.parent.ActiveNo)[1])
+            studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
+            reqData.append(studentNo)
             found = False
             lessonSellected = False
+
+
             for req in sqlLib.getReqs():
                 print(req)      
                 reqD = []
@@ -326,6 +329,14 @@ class LessonReq(Gtk.Dialog):
                     lessonSellected = False
             else:
                 lessonSellected = True
+
+
+            for active in sqlLib.getStudentsAcceptedLessons(studentNo):
+                print("lesson datas : ",lesson[1], active[0])
+                if lesson[1] == active[0]:
+                    print("lesson allready founded")
+                    lessonSellected = False
+                    break
 
             if self.intFilter != None:
                 teacherInterest = sqlLib.getInterest(teacherData[0],"teacher")[0].split(" ")

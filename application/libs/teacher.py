@@ -248,7 +248,7 @@ class reqAndMessages(Gtk.Dialog):
         print(reqData)
         print("Accepted")
         regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
-        sqlLib.delReq(reqData[2], regNo, reqData[0])
+        sqlLib.delLessonReq(reqData[2], reqData[0])
         sqlLib.acceptLesson(reqData[2],regNo,reqData[0])
 
             #create req

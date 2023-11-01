@@ -351,6 +351,11 @@ def delReq(studentNo, regNo, lessonNo):
     cursor.execute(delData)
 
 
+def delLessonReq(studentNo, lessonNo):
+    delData = "DELETE FROM Req WHERE StudentNo = '{}' and LessonNo = '{}';".format(studentNo, lessonNo)
+    cursor.execute(delData)
+
+
 def createMessages():
     createReqTable = """ 
         CREATE TABLE IF NOT EXISTS Messages (
@@ -456,6 +461,15 @@ def getReqC(studentNo, lessonNo):
         counter += 1
     print(counter)
     return counter
+
+def getStudentsAcceptedLessons(studentNo):
+    #rec = getBig("ActiveLessons")
+    lessonList = []
+    ınsertNew = """ SELECT LessonNo FROM AcceptedLessons WHERE StudentNo = '{}';""".format(studentNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print(data)
+    return data
 
 
 def closeDB():
