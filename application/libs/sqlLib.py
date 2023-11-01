@@ -307,6 +307,14 @@ def getActiveLessons():
     print(data)
     return data
 
+def getActiveLessonData(lessonNo, regNo):
+    ınsertNew = """ SELECT * FROM ActiveLessons WHERE LessonNo = '{}' and RegNo = '{}';""".format(lessonNo,regNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print(data)
+    return data
+
+
 def genLessonNo(lessonName):
     lessons = getActiveLessons()
     lessonNos = []
@@ -408,7 +416,7 @@ def getStudentsNoReqForTeacher(regNo):
         studentData = getStudentData(student) 
         studentNo = studentData[1]
         print(studentData)
-        acceptedL = getAcceptedLesson(studentNo)
+        acceptedL = getAcceptedLessonNo(studentNo)
         for lesson in teachersL:
             print("heree : ",lesson, acceptedL)
             if lesson not in acceptedL:
@@ -438,6 +446,13 @@ def acceptLesson(studentNo, regNo, lessonNo):
     cursor.execute(insertNew)
 
 def getAcceptedLesson(studentNo):
+    ınsertNew = """ SELECT * FROM AcceptedLessons WHERE StudentNo = '{}';""".format(studentNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print("Accepted Lesson : ",data)
+    return data
+
+def getAcceptedLessonNo(studentNo):
     ınsertNew = """ SELECT LessonNo FROM AcceptedLessons WHERE StudentNo = '{}';""".format(studentNo)
     cursor.execute(ınsertNew)
     data = cursor.fetchall()
@@ -471,6 +486,18 @@ def getStudentsAcceptedLessons(studentNo):
     print(data)
     return data
 
+# max mesaj uzunluğu tutulacak, öğrencinin max farklı hocaya talep açabileceği sayi
+def createRootTable():
+    createRTable = """ 
+        CREATE TABLE IF NOT EXISTS AcceptedLessons (
+        rec INT PRIMARY KEY,
+        ReqTeacherLimit INT,
+        MessageLenLimit INT)
+     """
+    try:
+        cursor.execute(createRTable)
+    except:
+        print("error createing Root table")
 
 def closeDB():
     conn.commit()

@@ -47,6 +47,11 @@ class StudentWin(Gtk.VBox):
         self.reqLB.connect("clicked",self.reqLBC)
         self.pack_start(self.reqLB,0,0,5)
 
+        self.acceptLB = Gtk.Button()
+        self.acceptLB.set_label("Accepted Lessons")
+        self.acceptLB.connect("clicked",self.acceptLBC)
+        self.pack_start(self.acceptLB,0,0,5)
+
         self.readM = Gtk.Button()
         self.readM.set_label("Read Messages")
         self.readM.connect("clicked",self.readMC)
@@ -84,6 +89,11 @@ class StudentWin(Gtk.VBox):
 
     def reqLBC(self,widget):
         self.dialog = LessonReq(self)
+        response = self.dialog.run()
+
+    def acceptLBC(self,widget):
+        studentNo = sqlLib.getStudentData(self.parent.ActiveNo)[1]
+        self.dialog = AcceptedLessons(self,studentNo)
         response = self.dialog.run()
 
     def lessonButtonC(self,widget):
@@ -441,6 +451,75 @@ class DropArea(Gtk.Label):
 
         else:
             print("unknown recieved")
+
+
+class AcceptedLessons(Gtk.Dialog):
+    def __init__(self, parent,studentNo):
+        super().__init__(title="Accepted Lessons")
+        self.add_buttons(
+            Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK
+        )
+        self.parent = parent
+        self.set_default_size(650, 600)
+        box = self.get_content_area()
+
+
+        #----------------------------------İndirilecekler Listesi
+        #treeview ve list store oluşturulması
+        #list store oluştururken sütunların hangi tipte değişken tutacağı belirtilir
+        self.StudentLStore = Gtk.ListStore(str,str,str,str)
+        self.StudentLTree = Gtk.TreeView(self.StudentLStore)
+        #içinde tutacağı değişken tipine göre bölme oluşturulması
+        cell = Gtk.CellRendererText()
+        cell.set_property("editable", True) #eğer tect değiştirilebilir olsun istersen
+        #stun tanımlama işlemi 1. argüman stun adı, 2. tutacağı hücre tipi 3, ekleme
+        #yaparken listenin kaçıncı argümanını alacağı
+        recColumn = Gtk.TreeViewColumn("Lesson No",cell,text = 0)
+
+        lNocolumn = Gtk.TreeViewColumn("Lesson Name",cell,text = 1)
+
+        tNocolumn = Gtk.TreeViewColumn("Teacher No",cell,text = 2)
+
+        tncolumn = Gtk.TreeViewColumn("Teacher Name",cell,text = 3)
+               
+        self.StudentLTree.append_column(recColumn)
+        self.StudentLTree.append_column(lNocolumn)
+        self.StudentLTree.append_column(tNocolumn)
+        self.StudentLTree.append_column(tncolumn)
+
+        l_scrolled = Gtk.ScrolledWindow()
+        box.pack_start(l_scrolled,1,1,10)
+        l_scrolled.add(self.StudentLTree)
+
+        acceptedLessons = sqlLib.getAcceptedLesson(studentNo)
+        for lesson in acceptedLessons:
+            # rec, sNo, regNO, lesNo
+            lessonData = sqlLib.getActiveLessonData(lesson[3],lesson[2])
+            print("data : ",lessonData)
+
+            string_list = []
+            if lessonData != []:
+                lessonData = lessonData[0]
+                teacherData = sqlLib.getTeacherDataReg(lessonData[3])[0]
+                string_list.append(str(lessonData[1]))
+                string_list.append(str(lessonData[2]) )
+                string_list.append(str(lessonData[3]))
+                #teacher
+                string_list.append(str(teacherData[2])+" "+teacherData[3])
+                
+                self.StudentLStore.append([*string_list])
+
+
+        label = Gtk.Label(label="This is a dialog to display additional information")
+
+        box.add(label)
+        self.show_all()
+
+
+class LessonReq(Gtk.Dialog):
+    def __init__(self, parent):
+        super().__init__(title="My Lessons")
+
 
 
 

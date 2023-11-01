@@ -49,6 +49,10 @@ class TeacherWin(Gtk.VBox):
         self.MessageB.connect("clicked",self.updateMessages)
         self.pack_start(self.MessageB,0,0,5)
 
+        self.regEntery = Gtk.Entry()
+        self.regEntery.set_placeholder_text(" Sicil ")
+        self.pack_start(self.regEntery,0,0,5)
+
 
 
     def updateMessages(self,widget):
