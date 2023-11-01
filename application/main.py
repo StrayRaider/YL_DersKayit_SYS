@@ -17,6 +17,7 @@ sqlLib.createActiveLessons()
 #sqlLib.droptable("Teachers")
 sqlLib.createTeacherTable()
 sqlLib.createAcceptedLessons()
+sqlLib.createRootTable()
 
 #sqlLib.droptable("Lessons")
 #sqlLib.createLessons()

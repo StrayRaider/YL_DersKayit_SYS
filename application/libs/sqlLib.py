@@ -489,7 +489,7 @@ def getStudentsAcceptedLessons(studentNo):
 # max mesaj uzunluğu tutulacak, öğrencinin max farklı hocaya talep açabileceği sayi
 def createRootTable():
     createRTable = """ 
-        CREATE TABLE IF NOT EXISTS AcceptedLessons (
+        CREATE TABLE IF NOT EXISTS Root (
         rec INT PRIMARY KEY,
         ReqTeacherLimit INT,
         MessageLenLimit INT)
@@ -498,6 +498,20 @@ def createRootTable():
         cursor.execute(createRTable)
     except:
         print("error createing Root table")
+
+def setRootData(reqL, mlenL):
+    delData = "DELETE FROM Root;"
+    cursor.execute(delData)
+    ınsertNew = """ INSERT INTO Root VALUES (0 , '{}' ,'{}');  """.format(reqL, mlenL)
+    cursor.execute(ınsertNew)
+
+def getRootData():
+    ınsertNew = """ SELECT * FROM Root;"""
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print(data)
+    return data
+
 
 def closeDB():
     conn.commit()

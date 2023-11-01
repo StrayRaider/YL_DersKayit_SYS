@@ -28,8 +28,43 @@ class RootWin(Gtk.VBox):
         self.turnbackB.set_label("Back")
         self.turnbackB.connect("clicked",self.turnbackBC)
         self.pack_start(self.turnbackB,0,0,5)
+
+        self.hBox = Gtk.HBox()
+        self.label = Gtk.Label("Req Limit")
+        self.hBox.pack_start(self.label,0,0,5)
+
+        self.reqEntery = Gtk.Entry()
+        self.reqEntery.set_placeholder_text(" Req Limit ")
+        self.hBox.pack_start(self.reqEntery,0,0,5)
+        self.pack_start(self.hBox, 0,0,5)
+
+        self.hBox = Gtk.HBox()
+        self.label = Gtk.Label("Message Len Limit")
+        self.hBox.pack_start(self.label,0,0,5)
+
+        self.mesLEntery = Gtk.Entry()
+        self.mesLEntery.set_placeholder_text(" Message Len Limit ")
+        self.hBox.pack_start(self.mesLEntery,0,0,5)
+        self.pack_start(self.hBox, 0,0,5)
+
+
+        rootD = sqlLib.getRootData()
+        if rootD != []:
+            self.reqEntery.set_text(str(rootD[0][1]))
+            self.mesLEntery.set_text(str(rootD[0][2]))
+
+        self.updateButton = Gtk.Button()
+        self.updateButton.set_label("New Interest")
+        self.updateButton.connect("clicked",self.updateButtonC)
+        self.pack_start(self.updateButton,0,0,5)
         
         self.pack_start(self.allStudentsB,0,0,5)
+
+    def updateButtonC(self, widget):
+        reqL = self.reqEntery.get_text()
+        messageL = self.mesLEntery.get_text()
+        sqlLib.setRootData(reqL,messageL)
+        
 
     def turnbackBC(self,widget):
         self.parent.stack.set_visible_child_name("way_select")
