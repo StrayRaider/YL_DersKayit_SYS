@@ -88,6 +88,7 @@ class StudentWin(Gtk.VBox):
         sqlLib.connect()
 
     def reqLBC(self,widget):
+        print("\n\n\n req Lesson B clicked \n\n\n")
         self.dialog = LessonReq(self)
         response = self.dialog.run()
 
@@ -204,9 +205,10 @@ class LessonDialog(Gtk.Dialog):
 class LessonReq(Gtk.Dialog):
     def __init__(self, parent):
         super().__init__(title="My Lessons")
+        print("\n\n\n req Lesson B clicked in \n\n\n")
         self.parent = parent
-        self.set_default_size(650, 600)
         box = self.get_content_area()
+        self.set_default_size(600, 600)
 
         self.intFilter = None
         self.noFilter = None
@@ -379,7 +381,7 @@ class LessonReq(Gtk.Dialog):
 
             #create req
             if self.StudentLStore[iter][column]:
-                maxTeacherC = 1
+                maxTeacherC = sqlLib.getRootData()[0][1]
                 if sqlLib.getReqC(studentNo, lessonNo) < maxTeacherC:
                     self.createMessager(regNo)
                     sqlLib.newReq(studentNo, regNo, lessonNo)
@@ -516,13 +518,6 @@ class AcceptedLessons(Gtk.Dialog):
         self.show_all()
 
 
-class LessonReq(Gtk.Dialog):
-    def __init__(self, parent):
-        super().__init__(title="My Lessons")
-
-
-
-
 class Messager(Gtk.Dialog):
     def __init__(self, parent, studentNo, regNo):
         super().__init__(title=" Messager ")
@@ -532,7 +527,7 @@ class Messager(Gtk.Dialog):
         self.studentNo = studentNo
         self.regNo = regNo
 
-        self.maxLen = 100
+        self.maxLen = sqlLib.getRootData()[0][2]
 
         scrolledwindow = Gtk.ScrolledWindow()
         scrolledwindow.set_hexpand(True)
