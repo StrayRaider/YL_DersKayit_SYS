@@ -72,7 +72,7 @@ class StudentWin(Gtk.VBox):
 
     def teacherRBC(self,widget):
         studentNo = studentData = sqlLib.getStudentData(self.parent.ActiveNo)[1]
-        self.dialog = teacher.reqAndMessages(self, studentNo)
+        self.dialog = teacher.reqAndMessages(self, studentNo,"student")
         response = self.dialog.run()
 
     def readMC(self,widget):
@@ -325,7 +325,7 @@ class LessonReq(Gtk.Dialog):
             lessonSellected = False
 
 
-            for req in sqlLib.getReqs():
+            for req in sqlLib.getAllReqs():
                 print(req)      
                 reqD = []
                 reqD.append(str(req[3]))

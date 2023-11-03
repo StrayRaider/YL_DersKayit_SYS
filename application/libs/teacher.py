@@ -2,7 +2,7 @@ import gi
 from libs import sqlLib, student
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 class TeacherWin(Gtk.VBox):
     def __init__(self,parent):
@@ -170,10 +170,11 @@ class InterestDialog(Gtk.Dialog):
             print("Selected: currency=%s" % text)
 
 class reqAndMessages(Gtk.Dialog):
-    def __init__(self, parent,regNo):
-        super().__init__(title="Student Requests")
+    def __init__(self, parent,regNo,role="teacher"):
+        super().__init__(title="{} get Requests".format(role))
         self.parent = parent
         self.regNo = regNo
+        self.role = role
         self.set_default_size(650, 600)
         box = self.get_content_area()
 
@@ -242,7 +243,7 @@ class reqAndMessages(Gtk.Dialog):
               
             print(reqD)      
         try:
-            self.StudentLStore.append([*reqD,false])
+            self.StudentLStore.append([*reqD,False])
         except:
             print("no request founded")
 
@@ -253,9 +254,12 @@ class reqAndMessages(Gtk.Dialog):
             reqData.append(self.StudentLStore[iter][i])
         print(reqData)
         print("Accepted")
-        regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
-        sqlLib.delLessonReq(reqData[2], reqData[0])
-        sqlLib.acceptLesson(reqData[2],regNo,reqData[0])
+        if self.role == "teacher":
+            sqlLib.delLessonReq(reqData[2], reqData[0])
+            sqlLib.acceptLesson(reqData[2],self.regNo,reqData[0])
+        elif self.role == "student":
+            sqlLib.delLessonReq(reqData[2], reqData[0])
+            sqlLib.acceptLesson(self.regNo,reqData[2],reqData[0])
 
             #create req
             #if self.StudentLStore[iter][column]:
@@ -271,7 +275,6 @@ class reqAndMessages(Gtk.Dialog):
         reqData = []
         for i in range(0,column):
             reqData.append(self.StudentLStore[iter][i])
-        regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
         sqlLib.delLessonReq(reqData[2], reqData[0])
 
         self.show_all()
@@ -364,8 +367,8 @@ class reqAbleStudents(Gtk.Dialog):
         box = self.get_content_area()
 
         #Student No, Name+Surname
-        self.StudentLStore = Gtk.ListStore(str,str,str,str,bool)
-        self.StudentLTree = Gtk.TreeView(self.StudentLStore)
+        self.StudentLStore = Gtk.ListStore(str,str,str,str,bool,Gtk.Button)
+        self.StudentLTree = Gtk.TreeView(model=self.StudentLStore)
 
         cell = Gtk.CellRendererText()
         cell.set_property("editable", True) #eğer tect değiştirilebilir olsun istersen
@@ -390,6 +393,9 @@ class reqAbleStudents(Gtk.Dialog):
 
         self.StudentLTree.append_column(t_column)
 
+        self.StudentLTree.set_activate_on_single_click(True)
+        self.StudentLTree.connect("button_press_event",self.viewS)
+
         l_scrolled = Gtk.ScrolledWindow()
         box.pack_start(l_scrolled,1,1,10)
         l_scrolled.add(self.StudentLTree)
@@ -400,6 +406,15 @@ class reqAbleStudents(Gtk.Dialog):
 
         box.add(label)
         self.show_all()
+
+    def viewS(self,widget,event):
+        if event.type == Gdk.EventType._2BUTTON_PRESS:
+            selected = self.StudentLTree.get_selection()
+            tree_model, tree_iter = selected.get_selected()
+            select = tree_model[tree_iter][2]
+            self.dialog = student.AcceptedLessons(self,select)
+            response = self.dialog.run()
+            print(select)
 
     def updateListStore(self):
         self.StudentLStore.clear()
@@ -441,6 +456,8 @@ class reqAbleStudents(Gtk.Dialog):
                     break
             if not found:
                 lessonData.append(False)
+            studentView = Gtk.Button("view")
+            lessonData.append(studentView)
             #lessonData.append(False)
             self.StudentLStore.append([*lessonData])
 
