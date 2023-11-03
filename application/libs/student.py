@@ -70,8 +70,10 @@ class StudentWin(Gtk.VBox):
 
         self.updateStudentInfo(None,None)
 
-    def teacherRBC():
-        pass
+    def teacherRBC(self,widget):
+        studentNo = studentData = sqlLib.getStudentData(self.parent.ActiveNo)[1]
+        self.dialog = teacher.reqAndMessages(self, studentNo)
+        response = self.dialog.run()
 
     def readMC(self,widget):
         studentNo = studentData = sqlLib.getStudentData(self.parent.ActiveNo)[1]

@@ -421,8 +421,7 @@ def getStudentsNoReqForTeacher(regNo):
             print("heree : ",lesson, acceptedL)
             if lesson not in acceptedL:
                 print("öğrencinin alabileceği ders var")
-                searchedStudents.append(student)
-                break
+                searchedStudents.append([student,lesson])
     print("accepted S : ",searchedStudents)
     return searchedStudents
 

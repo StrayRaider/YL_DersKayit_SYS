@@ -242,7 +242,7 @@ class reqAndMessages(Gtk.Dialog):
               
             print(reqD)      
         try:
-            self.StudentLStore.append([*reqD, False])
+            self.StudentLStore.append([*reqD,false])
         except:
             print("no request founded")
 
@@ -364,7 +364,7 @@ class reqAbleStudents(Gtk.Dialog):
         box = self.get_content_area()
 
         #Student No, Name+Surname
-        self.StudentLStore = Gtk.ListStore(str,str,bool)
+        self.StudentLStore = Gtk.ListStore(str,str,str,str,bool)
         self.StudentLTree = Gtk.TreeView(self.StudentLStore)
 
         cell = Gtk.CellRendererText()
@@ -374,13 +374,19 @@ class reqAbleStudents(Gtk.Dialog):
 
         lNameColumn = Gtk.TreeViewColumn("lessonName",cell,text = 1)
 
+        snoColumn = Gtk.TreeViewColumn("studentNo",cell,text = 2)
+
+        sNameColumn = Gtk.TreeViewColumn("studentName",cell,text = 3)
+
         self.StudentLTree.append_column(noColumn)
         self.StudentLTree.append_column(lNameColumn)
+        self.StudentLTree.append_column(snoColumn)
+        self.StudentLTree.append_column(sNameColumn)
 
         check_cell = Gtk.CellRendererToggle()
-        check_cell.connect("toggled", self.requestClicked,2)
+        check_cell.connect("toggled", self.requestClicked,4)
         t_column = Gtk.TreeViewColumn(" Request ",check_cell)
-        t_column.add_attribute(check_cell,"active",2)
+        t_column.add_attribute(check_cell,"active",4)
 
         self.StudentLTree.append_column(t_column)
 
@@ -402,12 +408,34 @@ class reqAbleStudents(Gtk.Dialog):
         regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
         students = sqlLib.getStudentsNoReqForTeacher(regNo)
         for studentUNo in students:
+            lessonNo = studentUNo[1]
+            studentUNo = studentUNo[0]
             studentData = sqlLib.getStudentData(studentUNo)
             lessonData = []
             reqData = []
             #print("lesson : ",lesson)
+            lessonData.append(str(lessonNo))
+            lessonName = sqlLib.getActiveLessonData(lessonNo, regNo)[0][2]
+            lessonData.append(str(lessonName))
             lessonData.append(str(studentData[1]))
             lessonData.append(str(studentData[2] + " " + studentData[3]))
+            print(lessonData)
+            for req in sqlLib.getReqs(studentUNo):
+                #print(req)      
+                reqT = []
+                reqT.append(str(req[3]))
+                reqT.append(str(req[2]))
+                reqT.append(req[1])
+                
+                print(reqD)      
+                print(reqT)      
+            """    if reqT == reqD:
+                    print("\nfounded !\n")
+                    lessonData.append(True)
+                    found = True
+                    break
+            if not found:
+                lessonData.append(False)"""
             lessonData.append(False)
             self.StudentLStore.append([*lessonData])
 
