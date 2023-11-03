@@ -26,6 +26,15 @@ def createLogIn():
     except:
         print("error createing log in table")
 
+def getUserInfo(userNo):
+    getdata = """ SELECT * FROM LogIn WHERE UserNo = '{}';""".format(userNo)
+    cursor.execute(getdata)
+    data = cursor.fetchall()
+    data = re.findall("[0-9]+",str(data))
+    if(data != None):
+        return data
+    else:
+        return False
 
 def dropLogIn():
     dropLogIn = """ DROP TABLE LogIn """
@@ -52,7 +61,7 @@ def LogIn( Id, Password, role):
     IdPassword = """ SELECT UserNo FROM LogIn WHERE UserId = '{}' and Password = '{}' and UserRole = '{}'""".format(Id, Password, role)
     cursor.execute(IdPassword)
     data = cursor.fetchall()
-    data = re.findall("[0-9]",str(data))
+    data = re.findall("[0-9]+",str(data))
     if(data != None):
         return data
     else:
@@ -63,6 +72,7 @@ def getLogIn():
     cursor.execute(IdPassword)
     data = cursor.fetchall()
     print(data)
+    return data
 
 def genUserNo():
     cursor.execute("SELECT UserNo FROM LogIn")
@@ -446,11 +456,33 @@ def createAcceptedLessons():
     except:
         print("error createing Aciteve Lessons table")
 
+def getTeacherMaxStudent(regNo):
+    ınsertNew = """ SELECT MaxStudent FROM Teachers WHERE RegNo = '{}';  """.format(regNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    return data
+
+def getTeacherActiveStudent(regNo):
+    activeLessons = getActiveLessons()
+    counter = 0
+    for lesson in activeLessons:
+        lessonRegNo = lesson[3]
+        if regNo == lessonRegNo:
+            counter += 1
+    return counter
 
 def acceptLesson(studentNo, regNo, lessonNo):
-    rec = getBig("AcceptedLessons")
-    insertNew = "INSERT INTO AcceptedLessons VALUES ('{}', '{}', '{}', '{}');".format(rec, studentNo, regNo, lessonNo)
-    cursor.execute(insertNew)
+    #control is acceptable
+    activeStudent = getTeacherActiveStudent(regNo)
+    maxStudent = getTeacherMaxStudent(regNo)
+    print(activeStudent, maxStudent)
+    if activeStudent < maxStudent:
+        print("able to accept")
+        rec = getBig("AcceptedLessons")
+        insertNew = "INSERT INTO AcceptedLessons VALUES ('{}', '{}', '{}', '{}');".format(rec, studentNo, regNo, lessonNo)
+        cursor.execute(insertNew)
+    else:
+        print("student limit reached")
 
 def getAcceptedLesson(studentNo):
     ınsertNew = """ SELECT * FROM AcceptedLessons WHERE StudentNo = '{}';""".format(studentNo)

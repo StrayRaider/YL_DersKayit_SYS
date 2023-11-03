@@ -24,6 +24,11 @@ class RootWin(Gtk.VBox):
         self.allStudentsB.set_label("Student Datas")
         self.allStudentsB.connect("clicked",self.allStudentsC)
 
+        self.allUsersB = Gtk.Button()
+        self.allUsersB.set_label("User Datas")
+        self.allUsersB.connect("clicked",self.allUsersBC)
+        self.pack_start(self.allUsersB,0,0,5)
+
         self.turnbackB = Gtk.Button()
         self.turnbackB.set_label("Back")
         self.turnbackB.connect("clicked",self.turnbackBC)
@@ -47,6 +52,16 @@ class RootWin(Gtk.VBox):
         self.hBox.pack_start(self.mesLEntery,0,0,5)
         self.pack_start(self.hBox, 0,0,5)
 
+        self.createS = Gtk.Button()
+        self.createS.set_label("Back")
+        self.createS.connect("clicked",self.createSC)
+        self.hBox.pack_start(self.createS,0,0,5)
+
+        self.studentCEntery = Gtk.Entry()
+        self.studentCEntery.set_placeholder_text(" Create Student Count")
+        self.hBox.pack_start(self.studentCEntery,0,0,5)
+        self.pack_start(self.hBox, 0,0,5)
+
 
         rootD = sqlLib.getRootData()
         if rootD != []:
@@ -59,6 +74,15 @@ class RootWin(Gtk.VBox):
         self.pack_start(self.updateButton,0,0,5)
         
         self.pack_start(self.allStudentsB,0,0,5)
+
+    def allUsersBC(self, widget):
+        self.dialog = allUsersDialog(self)
+        response = self.dialog.run()
+        self.dialog.destroy()
+
+    def createSC(self, widget):
+        studentC = self.studentCEntery.get_text()
+        sqlLib.createRandomStudent(studentC)
 
     def updateButtonC(self, widget):
         reqL = self.reqEntery.get_text()
@@ -89,13 +113,12 @@ class RootWin(Gtk.VBox):
 class allStudentsDialog(Gtk.Dialog):
     def __init__(self, parent):
         super().__init__(title="My Lessons")
-        #sqlLib.createRandomStudent(3)
         box = self.get_content_area()
         self.parent = parent
         self.set_default_size(650, 600)
 
 
-        self.StudentStore = Gtk.ListStore(str,str,str,str,str,str)
+        self.StudentStore = Gtk.ListStore(str,str,str,str,str,str,str)
         self.StudentTree = Gtk.TreeView(self.StudentStore)
         #içinde tutacağı değişken tipine göre bölme oluşturulması
         cell = Gtk.CellRendererText()
@@ -123,6 +146,9 @@ class allStudentsDialog(Gtk.Dialog):
         gradeColumn = Gtk.TreeViewColumn("GradeAvarage",cell,text = 5)
         gradeColumn.set_max_width(100)
 
+        gradeColumn = Gtk.TreeViewColumn("Interest",cell,text = 6)
+        gradeColumn.set_max_width(100)
+
 
 
         self.StudentTree.append_column(noColumn)
@@ -136,17 +162,19 @@ class allStudentsDialog(Gtk.Dialog):
         box.pack_start(l_scrolled,1,1,10)
         l_scrolled.add(self.StudentTree)
 
-
-        for userNo in sqlLib.getStudents():
-            print("userNo :",userNo)
-            studentData = sqlLib.getStudentData(userNo)[0]
-            print(studentData)
-            x = 0
-            sData = []
-            for i in studentData:
-                sData.append(str(studentData[x]))
-                x+=1
-            self.StudentStore.append([*sData])
+        try:
+            for userNo in sqlLib.getStudents():
+                print("userNo :",userNo)
+                studentData = sqlLib.getStudentData(userNo)
+                print(studentData)
+                x = 0
+                sData = []
+                for i in studentData:
+                    sData.append(str(studentData[x]))
+                    x+=1
+                self.StudentStore.append([*sData])
+        except:
+            pass
 
         self.show_all()
 
@@ -246,4 +274,58 @@ class NewUserDialog(Gtk.Dialog):
                     self.parent.dialog = NewTeacgerDialog(self.parent,userNo)
                     response = self.parent.dialog.run()
                 self.destroy()
+
+
+
+class allUsersDialog(Gtk.Dialog):
+    def __init__(self, parent):
+        super().__init__(title="My Lessons")
+        box = self.get_content_area()
+        self.parent = parent
+        self.set_default_size(650, 600)
+
+
+        self.StudentStore = Gtk.ListStore(str,str,str,str)
+        self.StudentTree = Gtk.TreeView(self.StudentStore)
+        #içinde tutacağı değişken tipine göre bölme oluşturulması
+        cell = Gtk.CellRendererText()
+        cell.set_property("editable", True) #eğer tect değiştirilebilir olsun istersen
+        #stun tanımlama işlemi 1. argüman stun adı, 2. tutacağı hücre tipi 3, ekleme
+        #yaparken listenin kaçıncı argümanını alacağı
+
+        #datas : number, name, surname, avarageGrade, transkriptPath
+
+        unoColumn = Gtk.TreeViewColumn("User No",cell,text = 0)
+        unoColumn.set_max_width(100)
+
+        noColumn = Gtk.TreeViewColumn("Password",cell,text = 1)
+        noColumn.set_max_width(100)
+
+        nameColumn = Gtk.TreeViewColumn("User ID",cell,text = 2)
+        nameColumn.set_max_width(100)
+
+        roleColumn = Gtk.TreeViewColumn("User Role",cell,text = 3)
+        roleColumn.set_max_width(100)
+
+        self.StudentTree.append_column(noColumn)
+        self.StudentTree.append_column(unoColumn)
+        self.StudentTree.append_column(nameColumn)
+        self.StudentTree.append_column(roleColumn)
+
+        l_scrolled = Gtk.ScrolledWindow()
+        box.pack_start(l_scrolled,1,1,10)
+        l_scrolled.add(self.StudentTree)
+
+        #try:
+        if 1:
+            for userNo in sqlLib.getLogIn():
+                print("userNo :",userNo)
+                sData = []
+                for i in userNo:
+                    sData.append(str(i))
+                self.StudentStore.append([*sData])
+        #except:
+        #    pass
+
+        self.show_all()
 

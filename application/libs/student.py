@@ -1,5 +1,5 @@
 import gi
-from libs import ocrRead, sqlLib, teacher
+from libs import ocrRead, sqlLib, teacher, dialogs
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf
 
@@ -67,22 +67,49 @@ class StudentWin(Gtk.VBox):
         self.turnbackB.connect("clicked",self.turnbackBC)
         self.pack_start(self.turnbackB,0,0,5)
 
+        self.dialog = dialogs.textMessage(self,"ekrana yaz")
+        response = self.dialog.run()
+        self.dialog.destroy()
+
 
         self.updateStudentInfo(None,None)
 
+    def isAbleToC(self):
+        if self.parent.ActiveNo != -1 :
+            try:
+                studentNo = sqlLib.getStudentData(self.parent.ActiveNo)[1]
+            except:
+                self.dialog = dialogs.textMessage(self,"No Transkript Founded")
+                response = self.dialog.run()
+                self.dialog.destroy()
+                return 0
+            return 1
+        else:
+            self.dialog = dialogs.textMessage(self,"No User Found")
+            response = self.dialog.run()
+            self.dialog.destroy()
+            return 0
+
+
     def teacherRBC(self,widget):
-        studentNo = studentData = sqlLib.getStudentData(self.parent.ActiveNo)[1]
-        self.dialog = teacher.reqAndMessages(self, studentNo,"student")
-        response = self.dialog.run()
+        if self.isAbleToC():
+            studentNo = sqlLib.getStudentData(self.parent.ActiveNo)[1]
+            dialog = teacher.reqAndMessages(self, studentNo,"student")
+            response = dialog.run()
+            dialog.destroy()
 
     def readMC(self,widget):
-        studentNo = studentData = sqlLib.getStudentData(self.parent.ActiveNo)[1]
-        self.dialog = teacher.readMessages(self, studentNo, "student")
-        response = self.dialog.run()
+        if self.isAbleToC():
+            studentNo = studentData = sqlLib.getStudentData(self.parent.ActiveNo)[1]
+            dialog = teacher.readMessages(self, studentNo, "student")
+            response = dialog.run()
+            dialog.destroy()
 
     def intButtonC(self,widget):
-        self.dialog = teacher.InterestDialog(self,role="student")
-        response = self.dialog.run()
+        if self.isAbleToC():
+            dialog = teacher.InterestDialog(self,role="student")
+            response = dialog.run()
+            dialog.destroy()
         
     def add_text_targets(self, button=None):
         self.drop_area.drag_dest_set_target_list(None)
@@ -97,29 +124,27 @@ class StudentWin(Gtk.VBox):
         sqlLib.connect()
 
     def reqLBC(self,widget):
-        print("\n\n\n req Lesson B clicked \n\n\n")
-        self.dialog = LessonReq(self)
-        response = self.dialog.run()
+        if self.isAbleToC():
+            dialog = LessonReq(self)
+            response = dialog.run()
+            dialog.destroy()
 
     def acceptLBC(self,widget):
-        studentNo = sqlLib.getStudentData(self.parent.ActiveNo)[1]
-        self.dialog = AcceptedLessons(self,studentNo)
-        response = self.dialog.run()
+        if self.isAbleToC():
+            studentNo = sqlLib.getStudentData(self.parent.ActiveNo)[1]
+            dialog = AcceptedLessons(self,studentNo)
+            response = dialog.run()
+            dialog.destroy()
 
     def lessonButtonC(self,widget):
-        self.dialog = LessonDialog(self)
-        response = self.dialog.run()
-        if response == Gtk.ResponseType.OK:
-            print("The OK button was clicked")
-            self.dialog.destroy()
-        elif response == Gtk.ResponseType.CANCEL:
-            print("The Cancel button was clicked")
-            self.dialog.destroy()
+        if self.isAbleToC():
+            dialog = LessonDialog(self)
+            response = dialog.run()
+            dialog.destroy()
 
     def updateStudentInfo(self,widget,cr):
         try:
             studentData = sqlLib.getStudentData(self.parent.ActiveNo)
-            #print(studentData)
             if studentData and studentData != []:
                 self.nameL.set_text("Name : {}".format(studentData[2]))
                 self.surnameL.set_text("surname : {}".format(studentData[3]))
@@ -194,7 +219,6 @@ class LessonDialog(Gtk.Dialog):
         box.pack_start(l_scrolled,1,1,10)
         l_scrolled.add(self.StudentLTree)
 
-        print(type(self.parent.parent.ActiveNo))
         activeNo = self.parent.parent.ActiveNo
         for i in sqlLib.getStudentsLessons(activeNo):
             print(i)
@@ -404,8 +428,9 @@ class LessonReq(Gtk.Dialog):
     def createMessager(self,regNo):
         studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
         print("here",regNo)
-        self.dialog = Messager(self,studentNo, regNo)
-        response = self.dialog.run()
+        dialog = Messager(self,studentNo, regNo)
+        response = dialog.run()
+        dialog.destroy()
         return response
 
     def filterButtonC(self,widget):
