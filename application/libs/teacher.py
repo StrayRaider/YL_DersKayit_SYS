@@ -420,23 +420,28 @@ class reqAbleStudents(Gtk.Dialog):
             lessonData.append(str(studentData[1]))
             lessonData.append(str(studentData[2] + " " + studentData[3]))
             print(lessonData)
-            for req in sqlLib.getReqs(studentUNo):
-                #print(req)      
-                reqT = []
-                reqT.append(str(req[3]))
-                reqT.append(str(req[2]))
-                reqT.append(req[1])
+            studentNo = sqlLib.getStudentData(studentUNo)[1]
+            found = False
+            reqCompare = [str(lessonNo), str(studentNo), str(regNo)]
+            print("reqC",reqCompare)      
+            for req in sqlLib.getReqs(studentNo):
+                print(req)      
+                #sno, regno, lno
+                reqD = []
+                reqD.append(str(req[3]))
+                reqD.append(str(req[2]))
+                reqD.append(str(req[1]))
                 
-                print(reqD)      
-                print(reqT)      
-            """    if reqT == reqD:
+                print("reqData",reqD)      
+                print("reqC",reqCompare)      
+                if reqD == reqCompare:
                     print("\nfounded !\n")
                     lessonData.append(True)
                     found = True
                     break
             if not found:
-                lessonData.append(False)"""
-            lessonData.append(False)
+                lessonData.append(False)
+            #lessonData.append(False)
             self.StudentLStore.append([*lessonData])
 
     def requestClicked(self,widget,path, column):
@@ -450,15 +455,19 @@ class reqAbleStudents(Gtk.Dialog):
                 studentData.append(self.StudentLStore[iter][i])
             print(studentData)
             print("requested")
-            studentNo = studentData[0]
+            studentNo = studentData[2]
+            lessonNo = studentData[0]
+            regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
+            print("created Req : ",regNo, studentNo, lessonNo)
 
             if self.StudentLStore[iter][column]:
-                regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
                 self.createMessager(studentNo)
                 #req tablosuna ters datalarla gönderim yapılacak
                 sqlLib.newReq(regNo, studentNo, lessonNo)
             else:
+                print("deleted Req : ",regNo, studentNo, lessonNo)
                 sqlLib.delReq(regNo,studentNo, lessonNo)
+        self.updateListStore()
         self.show_all()
 
     def createMessager(self,studentNo):
