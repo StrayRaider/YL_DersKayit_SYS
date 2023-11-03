@@ -1,5 +1,5 @@
 import gi
-from libs import sqlLib
+from libs import sqlLib, student
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -84,7 +84,8 @@ class TeacherWin(Gtk.VBox):
         response = self.dialog.run()
 
     def reqLBC(self,widget):
-        self.dialog = reqAndMessages(self)
+        regNo = sqlLib.getTeacherData(self.parent.ActiveNo)[0][1]
+        self.dialog = reqAndMessages(self,regNo)
         response = self.dialog.run()
 
     def reqABC(self,widget):
@@ -169,9 +170,10 @@ class InterestDialog(Gtk.Dialog):
             print("Selected: currency=%s" % text)
 
 class reqAndMessages(Gtk.Dialog):
-    def __init__(self, parent):
+    def __init__(self, parent,regNo):
         super().__init__(title="Student Requests")
         self.parent = parent
+        self.regNo = regNo
         self.set_default_size(650, 600)
         box = self.get_content_area()
 
@@ -199,18 +201,18 @@ class reqAndMessages(Gtk.Dialog):
         self.StudentLTree.append_column(lNameColumn)
         self.StudentLTree.append_column(sNoColumn)
 
-        #check button stunu oluşturma işlemi
-        #uygun hücre oluşturma
         check_cell = Gtk.CellRendererToggle()
-        #hücre içi widget fonksiyon bağlantısı
         check_cell.connect("toggled", self.acceptClicked,3)
-        #satır oluşturma 1. satır adı 2. hücre tipi
         t_column = Gtk.TreeViewColumn(" Accept ",check_cell)
-        #stuna argümanları dışarda bu fonksiyonla da verebilirsin
-        t_column.add_attribute(check_cell,"active",5)
-        #t_column.set_max_width(30)
+        t_column.add_attribute(check_cell,"active",3)
 
-        #stun treeview ekleme işlemi
+        self.StudentLTree.append_column(t_column)
+
+        check_cell = Gtk.CellRendererToggle()
+        check_cell.connect("toggled", self.rejectClicked,4)
+        t_column = Gtk.TreeViewColumn(" Reject ",check_cell)
+        t_column.add_attribute(check_cell,"active",4)
+
         self.StudentLTree.append_column(t_column)
 
         #yeni satırlar oluşturma
@@ -230,7 +232,7 @@ class reqAndMessages(Gtk.Dialog):
         self.StudentLStore.clear()
         print(type(self.parent.parent.ActiveNo))
         activeNo = self.parent.parent.ActiveNo
-        for req in sqlLib.getReqs():
+        for req in sqlLib.getReqs(self.regNo):
             print(req)      
             reqD = []
             reqD.append(str(req[3]))
@@ -261,6 +263,17 @@ class reqAndMessages(Gtk.Dialog):
                 #sqlLib.newReq(studentNo, regNo, lessonNo)
             #delete req
             #else:
+        self.show_all()
+        self.updateListStore()
+
+    def rejectClicked(self,widget,path,column):
+        iter = self.StudentLStore.get_iter(path)
+        reqData = []
+        for i in range(0,column):
+            reqData.append(self.StudentLStore[iter][i])
+        regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
+        sqlLib.delLessonReq(reqData[2], reqData[0])
+
         self.show_all()
         self.updateListStore()
 
@@ -404,33 +417,26 @@ class reqAbleStudents(Gtk.Dialog):
             print(self.StudentLStore[iter][column])
             self.StudentLStore[iter][column]= not self.StudentLStore[iter][column]
 
-            lessonData = []
+            studentData = []
             for i in range(0,column+1):
-                lessonData.append(self.StudentLStore[iter][i])
-            print(lessonData)
+                studentData.append(self.StudentLStore[iter][i])
+            print(studentData)
             print("requested")
-            lessonNo = lessonData[0]
-            regNo = lessonData[4]
-            print(sqlLib.getStudentData(self.parent.parent.ActiveNo))
-            studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
+            studentNo = studentData[0]
 
-            #create req
             if self.StudentLStore[iter][column]:
-                maxTeacherC = 1
-                if sqlLib.getReqC(studentNo, lessonNo) < maxTeacherC:
-                    self.createMessager(regNo)
-                    sqlLib.newReq(studentNo, regNo, lessonNo)
-                else:
-                    print("No more request limit")
-            #delete req
+                regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
+                self.createMessager(studentNo)
+                #req tablosuna ters datalarla gönderim yapılacak
+                sqlLib.newReq(regNo, studentNo, lessonNo)
             else:
-                sqlLib.delReq(studentNo, regNo, lessonNo)
+                sqlLib.delReq(regNo,studentNo, lessonNo)
         self.show_all()
 
-    def createMessager(self,regNo):
-        studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
+    def createMessager(self,studentNo):
+        regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
         print("here",regNo)
-        self.dialog = Messager(self,studentNo, regNo)
+        self.dialog = student.Messager(self,studentNo, regNo)
         response = self.dialog.run()
         return response
 

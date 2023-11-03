@@ -346,8 +346,8 @@ def newReq(studentNo, regNo, lessonNo):
     insertNew = "INSERT INTO Req VALUES ('{}', '{}', '{}', '{}');".format(rec, studentNo, regNo, lessonNo)
     cursor.execute(insertNew)
 
-def getReqs():
-    ınsertNew = """ SELECT * FROM Req;"""
+def getReqs(regNo):
+    ınsertNew = """ SELECT * FROM Req WHERE RegNo = '{}';""".format(regNo)
     cursor.execute(ınsertNew)
     data = cursor.fetchall()
     print(data)

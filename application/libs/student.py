@@ -52,6 +52,11 @@ class StudentWin(Gtk.VBox):
         self.acceptLB.connect("clicked",self.acceptLBC)
         self.pack_start(self.acceptLB,0,0,5)
 
+        self.teacherRB = Gtk.Button()
+        self.teacherRB.set_label("Teacher Reqs")
+        self.teacherRB.connect("clicked",self.teacherRBC)
+        self.pack_start(self.teacherRB,0,0,5)
+
         self.readM = Gtk.Button()
         self.readM.set_label("Read Messages")
         self.readM.connect("clicked",self.readMC)
@@ -65,6 +70,8 @@ class StudentWin(Gtk.VBox):
 
         self.updateStudentInfo(None,None)
 
+    def teacherRBC():
+        pass
 
     def readMC(self,widget):
         studentNo = studentData = sqlLib.getStudentData(self.parent.ActiveNo)[1]
