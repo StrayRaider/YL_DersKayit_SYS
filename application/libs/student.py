@@ -151,17 +151,20 @@ class StudentWin(Gtk.VBox):
             dialog.destroy()
 
     def updateStudentInfo(self,widget,cr):
-        rootTime = sqlLib.getRootData()[0][3]
-        timeO = rootTime-self.parent.activeTime
-        if timeO >= 0:
-            self.label.set_text("Student Win"+" Timeout : {}".format(timeO))
-        else:
-            if self.parent.isEnded == False:
-                #create dialog
-                dialog = dialogs.textMessage(self,"Time Ended ")
-                response = dialog.run()
-                dialog.destroy()
-                self.parent.isEnded = True
+        try:
+            rootTime = sqlLib.getRootData()[0][3]
+            timeO = rootTime-self.parent.activeTime
+            if timeO >= 0:
+                self.label.set_text("Student Win"+" Timeout : {}".format(timeO))
+            else:
+                if self.parent.isEnded == False:
+                    #create dialog
+                    dialog = dialogs.textMessage(self,"Time Ended ")
+                    response = dialog.run()
+                    dialog.destroy()
+                    self.parent.isEnded = True
+        except:
+            pass
         try:
             studentData = sqlLib.getStudentData(self.parent.ActiveNo)
             if studentData and studentData != []:
@@ -187,7 +190,7 @@ class LessonDialog(Gtk.Dialog):
         #----------------------------------İndirilecekler Listesi
         #treeview ve list store oluşturulması
         #list store oluştururken sütunların hangi tipte değişken tutacağı belirtilir
-        self.StudentLStore = Gtk.ListStore(str,str,str,str)
+        self.StudentLStore = Gtk.ListStore(str,str,str,str,str)
         self.StudentLTree = Gtk.TreeView(self.StudentLStore)
         #içinde tutacağı değişken tipine göre bölme oluşturulması
         cell = Gtk.CellRendererText()
@@ -200,14 +203,18 @@ class LessonDialog(Gtk.Dialog):
         sNocolumn = Gtk.TreeViewColumn("Student No",cell,text = 1)
         sNocolumn.set_max_width(70)
 
-        lNocolumn = Gtk.TreeViewColumn("Lesson No",cell,text = 2)
+        namecolumn = Gtk.TreeViewColumn("Lesson Name",cell,text = 2)
+        namecolumn.set_max_width(70)
+
+        lNocolumn = Gtk.TreeViewColumn("Lesson No",cell,text = 3)
         lNocolumn.set_max_width(70)
 
-        notecolumn = Gtk.TreeViewColumn("Note ",cell,text = 3)
+        notecolumn = Gtk.TreeViewColumn("Note ",cell,text = 4)
         notecolumn.set_max_width(70)
                
         self.StudentLTree.append_column(recColumn)
         self.StudentLTree.append_column(sNocolumn)
+        self.StudentLTree.append_column(namecolumn)
         self.StudentLTree.append_column(lNocolumn)
         self.StudentLTree.append_column(notecolumn)
 

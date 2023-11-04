@@ -204,7 +204,10 @@ class reqAndMessages(Gtk.Dialog):
         self.noFilter = None
 
         # lessonNo, lessonName, StudentNo
-        self.StudentLStore = Gtk.ListStore(str,str,str,bool)
+        if role == "teacher":
+            self.StudentLStore = Gtk.ListStore(str,str,str,bool,bool)
+        else:
+            self.StudentLStore = Gtk.ListStore(str,str,str,bool)
         self.StudentLTree = Gtk.TreeView(self.StudentLStore)
 
         cell = Gtk.CellRendererText()
@@ -231,12 +234,13 @@ class reqAndMessages(Gtk.Dialog):
 
         self.StudentLTree.append_column(t_column)
 
-        check_cell = Gtk.CellRendererToggle()
-        check_cell.connect("toggled", self.rejectClicked,4)
-        t_column = Gtk.TreeViewColumn(" Reject ",check_cell)
-        t_column.add_attribute(check_cell,"active",4)
+        if role == "teacher":
+            check_cell = Gtk.CellRendererToggle()
+            check_cell.connect("toggled", self.rejectClicked,4)
+            t_column = Gtk.TreeViewColumn(" Reject ",check_cell)
+            t_column.add_attribute(check_cell,"active",4)
 
-        self.StudentLTree.append_column(t_column)
+            self.StudentLTree.append_column(t_column)
 
         #yeni satırlar oluşturma
         #self.iSongStore.append(["song_name",True,"url"])
@@ -265,7 +269,10 @@ class reqAndMessages(Gtk.Dialog):
               
             print(reqD)      
             try:
-                self.StudentLStore.append([*reqD,False])
+                if self.role == "teacher":
+                    self.StudentLStore.append([*reqD,False,False])
+                else:
+                    self.StudentLStore.append([*reqD,False])
             except:
                 print("no request founded")
 
@@ -281,16 +288,8 @@ class reqAndMessages(Gtk.Dialog):
             sqlLib.acceptLesson(reqData[2],self.regNo,reqData[0])
         elif self.role == "student":
             sqlLib.delLessonReq(reqData[2], reqData[0])
-            if sqlLib.acceptLesson(self.regNo,reqData[2],reqData[0]):
-                print(activeStudent, maxStudent)
+            sqlLib.acceptLesson(self.regNo,reqData[2],reqData[0])
 
-
-            #create req
-            #if self.StudentLStore[iter][column]:
-                #self.createMessager(regNo)
-                #sqlLib.newReq(studentNo, regNo, lessonNo)
-            #delete req
-            #else:
         self.show_all()
         self.updateListStore()
 

@@ -93,6 +93,14 @@ def parseDataNew(data):
 
     for lesson in lessons:
         print(lesson)
+
+        #name
+        z = lesson
+        z = z.split(" ")
+        name = str(z[1]) +" "+ str(z[2])
+        print(name)
+        #name
+
         lessonL = []
         lessonNo = re.findall("(?<!\d)[0-9]{7}(?!\d)",lesson)[0]
         lessonL.append(lessonNo)
@@ -105,6 +113,9 @@ def parseDataNew(data):
         for i in foundednotes:
             if i in notes:
                 lessonL.append(i)
+        if len(lessonL) == 1:
+            lessonL.append("--")
+        lessonL.append(name)
         lessonList.append(lessonL)
 
     print(lessonList) 

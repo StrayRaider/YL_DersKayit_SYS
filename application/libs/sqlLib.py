@@ -104,7 +104,8 @@ def createStudentsLessons():
         rec INT PRIMARY KEY,
         StudentNo INT,
         LessonNo INT,
-        Note VARCHAR(2))
+        Note VARCHAR(2),
+        Name VARCHAR(255))
      """
     try:
         cursor.execute(create)
@@ -118,10 +119,12 @@ def NewStudentLessons(studentNo,lessonList):
         try:
             lessonNote = lesson[1]
         except:
-            pass
-        if lessonNote == None:
             lessonNote == '--'
-        ınsertNew = """ INSERT INTO StudentsLessons VALUES ({},'{}' ,'{}', '{}');  """.format(rec, studentNo[0],lessonNo, lessonNote)
+        try:
+            lessonName = lesson[2]
+        except:
+            lessonName == '--'
+        ınsertNew = """ INSERT INTO StudentsLessons VALUES ({},'{}' ,'{}', '{}','{}');  """.format(rec, studentNo[0],lessonNo, lessonNote, lessonName)
         cursor.execute(ınsertNew)
     print("rec : ",rec)
 
@@ -169,8 +172,11 @@ def createStudentTable():
 
 
 def createNewStudent(userNo, studentNo,name,surName, note,transkriptPath):
-    ınsertNew = """ INSERT INTO Students VALUES ('{}' , '{}' ,'{}', '{}','{}','{}');  """.format(userNo, studentNo, name, surName, transkriptPath, note)
-    cursor.execute(ınsertNew)
+    if getStudentData(userNo) != []:
+        print("user exist")
+    else:
+        ınsertNew = """ INSERT INTO Students VALUES ('{}' , '{}' ,'{}', '{}','{}','{}');  """.format(userNo, studentNo, name, surName, transkriptPath, note)
+        cursor.execute(ınsertNew)
 
 def getStudentData(userNo):
     if userNo != -1:
