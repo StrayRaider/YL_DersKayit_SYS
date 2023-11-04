@@ -67,9 +67,6 @@ class StudentWin(Gtk.VBox):
         self.turnbackB.connect("clicked",self.turnbackBC)
         self.pack_start(self.turnbackB,0,0,5)
 
-        self.dialog = dialogs.textMessage(self,"ekrana yaz")
-        response = self.dialog.run()
-        self.dialog.destroy()
 
 
         self.updateStudentInfo(None,None)

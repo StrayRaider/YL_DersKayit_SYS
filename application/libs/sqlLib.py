@@ -1,5 +1,6 @@
 import psycopg2
 import re, random
+from libs import dialogs
 
 conn = None
 cursor = None
@@ -165,7 +166,11 @@ def getStudentData(userNo):
     if userNo != -1:
         ınsertNew = """ SELECT * FROM Students WHERE UserNo = '{}';  """.format(userNo)
         cursor.execute(ınsertNew)
-        return cursor.fetchall()[0]
+        try:
+            data = cursor.fetchall()[0]
+            return data
+        except:
+            return []
 
 def createActiveLessons():
     create = """ 
@@ -212,7 +217,7 @@ def parseData(data):
     return pdata
 
 def createRandomStudent(count):
-    for x in range(0,count):
+    for x in range(0,int(count)):
         userNo = genUserNo()
         studentNos = getStudentNos()
         studentNo = "210201"+str(random.randint(0,200))
@@ -432,14 +437,15 @@ def getStudentsNoReqForTeacher(regNo):
     searchedStudents = []
     for student in students:
         studentData = getStudentData(student) 
-        studentNo = studentData[1]
-        print(studentData)
-        acceptedL = getAcceptedLessonNo(studentNo)
-        for lesson in teachersL:
-            print("heree : ",lesson, acceptedL)
-            if lesson not in acceptedL:
-                print("öğrencinin alabileceği ders var")
-                searchedStudents.append([student,lesson])
+        if studentData:
+            studentNo = studentData[1]
+            print(studentData)
+            acceptedL = getAcceptedLessonNo(studentNo)
+            for lesson in teachersL:
+                print("heree : ",lesson, acceptedL)
+                if lesson not in acceptedL:
+                    print("öğrencinin alabileceği ders var")
+                    searchedStudents.append([student,lesson])
     print("accepted S : ",searchedStudents)
     return searchedStudents
 
@@ -463,26 +469,38 @@ def getTeacherMaxStudent(regNo):
     return data
 
 def getTeacherActiveStudent(regNo):
-    activeLessons = getActiveLessons()
+    activeLessons = getAllAcceptedLesson()
     counter = 0
     for lesson in activeLessons:
-        lessonRegNo = lesson[3]
-        if regNo == lessonRegNo:
+        lessonRegNo = lesson[2]
+        if int(regNo) == int(lessonRegNo):
             counter += 1
     return counter
 
 def acceptLesson(studentNo, regNo, lessonNo):
     #control is acceptable
     activeStudent = getTeacherActiveStudent(regNo)
-    maxStudent = getTeacherMaxStudent(regNo)
-    print(activeStudent, maxStudent)
+    maxStudent = getTeacherMaxStudent(regNo)[0][0]
     if activeStudent < maxStudent:
         print("able to accept")
         rec = getBig("AcceptedLessons")
         insertNew = "INSERT INTO AcceptedLessons VALUES ('{}', '{}', '{}', '{}');".format(rec, studentNo, regNo, lessonNo)
         cursor.execute(insertNew)
+        closeDB()
+        connect()
+        return True
     else:
-        print("student limit reached")
+        self.dialog = dialogs.textMessage(None," Student Limit Reached ! \n not able to accept The Lesson")
+        response = self.dialog.run()
+        self.dialog.destroy()
+        return False
+
+def getAllAcceptedLesson():
+    ınsertNew = """ SELECT * FROM AcceptedLessons;"""
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print("Accepted Lesson : ",data)
+    return data
 
 def getAcceptedLesson(studentNo):
     ınsertNew = """ SELECT * FROM AcceptedLessons WHERE StudentNo = '{}';""".format(studentNo)

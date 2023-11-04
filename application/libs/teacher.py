@@ -242,10 +242,10 @@ class reqAndMessages(Gtk.Dialog):
             reqD.append(str(req[1]))
               
             print(reqD)      
-        try:
-            self.StudentLStore.append([*reqD,False])
-        except:
-            print("no request founded")
+            try:
+                self.StudentLStore.append([*reqD,False])
+            except:
+                print("no request founded")
 
     def acceptClicked(self,widget,path, column):
         iter = self.StudentLStore.get_iter(path)
@@ -259,7 +259,9 @@ class reqAndMessages(Gtk.Dialog):
             sqlLib.acceptLesson(reqData[2],self.regNo,reqData[0])
         elif self.role == "student":
             sqlLib.delLessonReq(reqData[2], reqData[0])
-            sqlLib.acceptLesson(self.regNo,reqData[2],reqData[0])
+            if sqlLib.acceptLesson(self.regNo,reqData[2],reqData[0]):
+                print(activeStudent, maxStudent)
+
 
             #create req
             #if self.StudentLStore[iter][column]:
