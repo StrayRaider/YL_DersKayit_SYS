@@ -18,15 +18,16 @@ sqlLib.createActiveLessons()
 #sqlLib.droptable("Teachers")
 sqlLib.createTeacherTable()
 sqlLib.createAcceptedLessons()
-sqlLib.droptable("Root")
+#sqlLib.droptable("Root")
 sqlLib.createRootTable()
-sqlLib.setRootData(1,100,300)
+#sqlLib.setRootData(1,100,300)
 
 #sqlLib.droptable("Lessons")
 #sqlLib.createLessons()
 #sqlLib.createStudentsLessons()
 
 sqlLib.getAllSL()
+sqlLib.getAllSLessons()
 
 sqlLib.createNewUser("root", "root","root")
 sqlLib.createNewUser("emre", "1234","student")

@@ -131,6 +131,16 @@ def getAllSL():
     lessonList = cursor.fetchall()
     print("List : ",lessonList)
 
+def getAllSLessons():
+    ınsertNew = """ SELECT * FROM StudentsLessons"""
+    cursor.execute(ınsertNew)
+    lessonList = cursor.fetchall()
+    lessons = []
+    for lesson in lessonList:
+        if lesson[2] not in lessons:
+            lessons.append(lesson[2])
+    print("List : ",lessons)
+
 def getStudentsLessons(StudentNo):
     ınsertNew = """ SELECT * FROM StudentsLessons WHERE StudentNo = '{}'  """.format(StudentNo)
     cursor.execute(ınsertNew)

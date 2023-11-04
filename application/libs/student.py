@@ -90,9 +90,14 @@ class StudentWin(Gtk.VBox):
 
 
     def teacherRBC(self,widget):
-        if self.isAbleToC():
+        #close
+        if self.isAbleToC() and not self.parent.isEnded:
             studentNo = sqlLib.getStudentData(self.parent.ActiveNo)[1]
             dialog = teacher.reqAndMessages(self, studentNo,"student")
+            response = dialog.run()
+            dialog.destroy()
+        else:
+            dialog = dialogs.textMessage(self,"Time Ended\n not able to do ")
             response = dialog.run()
             dialog.destroy()
 
@@ -122,8 +127,13 @@ class StudentWin(Gtk.VBox):
         sqlLib.connect()
 
     def reqLBC(self,widget):
-        if self.isAbleToC():
+        #close
+        if self.isAbleToC() and not self.parent.isEnded:
             dialog = LessonReq(self)
+            response = dialog.run()
+            dialog.destroy()
+        else:
+            dialog = dialogs.textMessage(self,"Time Ended\n not able to do ")
             response = dialog.run()
             dialog.destroy()
 
@@ -142,7 +152,16 @@ class StudentWin(Gtk.VBox):
 
     def updateStudentInfo(self,widget,cr):
         rootTime = sqlLib.getRootData()[0][3]
-        self.label.set_text("Student Win"+" Timeout : {}".format(rootTime-self.parent.activeTime))
+        timeO = rootTime-self.parent.activeTime
+        if timeO >= 0:
+            self.label.set_text("Student Win"+" Timeout : {}".format(timeO))
+        else:
+            if self.parent.isEnded == False:
+                #create dialog
+                dialog = dialogs.textMessage(self,"Time Ended ")
+                response = dialog.run()
+                dialog.destroy()
+                self.parent.isEnded = True
         try:
             studentData = sqlLib.getStudentData(self.parent.ActiveNo)
             if studentData and studentData != []:

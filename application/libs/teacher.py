@@ -1,5 +1,5 @@
 import gi
-from libs import sqlLib, student
+from libs import sqlLib, student, dialogs
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
@@ -55,7 +55,15 @@ class TeacherWin(Gtk.VBox):
 
     def updateTime(self,widget,cr):
         rootTime = sqlLib.getRootData()[0][3]
-        self.label.set_text("Teacher Win"+" Timeout : {}".format(rootTime-self.parent.activeTime))
+        timeO = rootTime-self.parent.activeTime
+        if timeO >= 0:
+            self.label.set_text("Teacher Win"+" Timeout : {}".format(timeO))
+        else:
+            if self.parent.isEnded == False:
+                dialog = dialogs.textMessage(self,"Time Ended ")
+                response = dialog.run()
+                dialog.destroy()
+                self.parent.isEnded = True
 
     def updateMessages(self,widget):
         regNo = sqlLib.getTeacherData(self.parent.ActiveNo)[0][1]
@@ -86,13 +94,25 @@ class TeacherWin(Gtk.VBox):
         response = self.dialog.run()
 
     def reqLBC(self,widget):
-        regNo = sqlLib.getTeacherData(self.parent.ActiveNo)[0][1]
-        self.dialog = reqAndMessages(self,regNo)
-        response = self.dialog.run()
+        #close
+        if not self.parent.isEnded:
+            regNo = sqlLib.getTeacherData(self.parent.ActiveNo)[0][1]
+            self.dialog = reqAndMessages(self,regNo)
+            response = self.dialog.run()
+        else:
+            dialog = dialogs.textMessage(self,"Time Ended\n not able to do ")
+            response = dialog.run()
+            dialog.destroy()
 
     def reqABC(self,widget):
-        self.dialog = reqAbleStudents(self)
-        response = self.dialog.run()
+        #close
+        if not self.parent.isEnded:
+            self.dialog = reqAbleStudents(self)
+            response = self.dialog.run()
+        else:
+            dialog = dialogs.textMessage(self,"Time Ended\n not able to do ")
+            response = dialog.run()
+            dialog.destroy()
 
 
 class LessonDialog(Gtk.Dialog):
@@ -357,12 +377,6 @@ class readMessages(Gtk.Dialog):
                 listbox.add(row)
         self.show_all()
 
-
-
-
-
-
-
 class reqAbleStudents(Gtk.Dialog):
     def __init__(self, parent):
         super().__init__(title="Req Able Students")
@@ -519,4 +533,82 @@ class reqAbleStudents(Gtk.Dialog):
 
     def on_int_combo_changed(self, widget):
         print("changed")
+
+
+class LessonDialog(Gtk.Dialog):
+    def __init__(self, parent):
+        super().__init__(title="All Lessons")
+        self.add_buttons(
+            Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK
+        )
+        self.parent = parent
+        self.set_default_size(650, 600)
+        box = self.get_content_area()
+
+
+        self.StudentLStore = Gtk.ListStore(str,str,str,str)
+        self.StudentLTree = Gtk.TreeView(self.StudentLStore)
+
+        cell = Gtk.CellRendererText()
+        cell.set_property("editable", True) #eğer tect değiştirilebilir olsun istersen
+        #stun tanımlama işlemi 1. argüman stun adı, 2. tutacağı hücre tipi 3, ekleme
+        #yaparken listenin kaçıncı argümanını alacağı
+        recColumn = Gtk.TreeViewColumn("rec",cell,text = 0)
+        recColumn.set_max_width(70)
+
+        sNocolumn = Gtk.TreeViewColumn("Student No",cell,text = 1)
+        sNocolumn.set_max_width(70)
+
+        lNocolumn = Gtk.TreeViewColumn("Lesson No",cell,text = 2)
+        lNocolumn.set_max_width(70)
+
+        notecolumn = Gtk.TreeViewColumn("Note ",cell,text = 3)
+        notecolumn.set_max_width(70)
+               
+        self.StudentLTree.append_column(recColumn)
+        self.StudentLTree.append_column(sNocolumn)
+        self.StudentLTree.append_column(lNocolumn)
+        self.StudentLTree.append_column(notecolumn)
+
+        #check button stunu oluşturma işlemi
+        #uygun hücre oluşturma
+        #check_cell = Gtk.CellRendererToggle()
+        #del_cell = Gtk.CellRendererToggle()
+        #hücre içi widget fonksiyon bağlantısı
+        #check_cell.connect("toggled", self.tree_but_toggle,1,"i")
+        #del_cell.connect("toggled", self.del_tree_obj,3,"i")
+        #satır oluşturma 1. satır adı 2. hücre tipi
+        #t_column = Gtk.TreeViewColumn("->",check_cell)
+        #del_column = Gtk.TreeViewColumn("del",del_cell)
+        #stuna argümanları dışarda bu fonksiyonla da verebilirsin
+        #t_column.add_attribute(check_cell,"active",1)
+        #t_column.set_max_width(30)
+        #del_column.set_max_width(30)
+
+        #stun treeview ekleme işlemi
+        #self.iSongTree.append_column(t_column)
+        #self.iSongTree.append_column(del_column)
+        #self.iSongTree.append_column(u_column)
+        #self.iSongTree.append_column(recColumn)
+ 
+        #yeni satırlar oluşturma
+        #self.iSongStore.append(["song_name",True,"url"])
+        l_scrolled = Gtk.ScrolledWindow()
+        box.pack_start(l_scrolled,1,1,10)
+        l_scrolled.add(self.StudentLTree)
+
+        activeNo = self.parent.parent.ActiveNo
+        for i in sqlLib.getAllSL():
+            print(i)
+            string_list = []
+            for item in i:
+                string_list.append(str(item))
+                
+            self.StudentLStore.append([*string_list])
+
+
+        label = Gtk.Label(label="This is a dialog to display additional information")
+
+        box.add(label)
+        self.show_all()
 

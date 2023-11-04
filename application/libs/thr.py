@@ -10,7 +10,7 @@ def clockT(seconds,parent):
         print(" seconds count: {}".format(activeTime)) 
         parent.activeTime = activeTime
         time.sleep(1)  
-    #ended
     parent.isEnded = True
+    #ended
 
 #stopwatch(20)

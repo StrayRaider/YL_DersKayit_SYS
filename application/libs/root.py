@@ -1,5 +1,5 @@
 import gi
-from libs import sqlLib
+from libs import sqlLib, dialogs
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -51,32 +51,53 @@ class RootWin(Gtk.VBox):
         self.hBox.pack_start(self.mesLEntery,0,0,5)
         self.pack_start(self.hBox, 0,0,5)
 
-        self.createS = Gtk.Button()
-        self.createS.set_label("Back")
-        self.createS.connect("clicked",self.createSC)
-        self.hBox.pack_start(self.createS,0,0,5)
+        hBox = Gtk.HBox()
+        timeoutlabel = Gtk.Label("Set Timeout")
+        hBox.pack_start(timeoutlabel,0,0,5)
+
+        self.timeoutEntery = Gtk.Entry()
+        self.timeoutEntery.set_placeholder_text(" Timeout ")
+        hBox.pack_start(self.timeoutEntery,0,0,5)
+
+        self.updateButton = Gtk.Button()
+        self.updateButton.set_label("Update Root Data")
+        self.updateButton.connect("clicked",self.updateButtonC)
+        hBox.pack_start(self.updateButton,0,0,5)
+
+        self.pack_start(hBox, 0,0,5)
+
+        self.hBox = Gtk.HBox()
 
         self.studentCEntery = Gtk.Entry()
         self.studentCEntery.set_placeholder_text(" Create Student Count")
         self.hBox.pack_start(self.studentCEntery,0,0,5)
         self.pack_start(self.hBox, 0,0,5)
 
+        self.createS = Gtk.Button()
+        self.createS.set_label("Create Student")
+        self.createS.connect("clicked",self.createSC)
+        self.hBox.pack_start(self.createS,0,0,5)
 
         rootD = sqlLib.getRootData()
         if rootD != []:
             self.reqEntery.set_text(str(rootD[0][1]))
             self.mesLEntery.set_text(str(rootD[0][2]))
+            self.timeoutEntery.set_text(str(rootD[0][3]))
 
-        self.updateButton = Gtk.Button()
-        self.updateButton.set_label("New Interest")
-        self.updateButton.connect("clicked",self.updateButtonC)
-        self.pack_start(self.updateButton,0,0,5)
         
         self.pack_start(self.allStudentsB,0,0,5)
 
     def updateTime(self,widget,cr):
         rootTime = sqlLib.getRootData()[0][3]
-        self.label.set_text("Root Win"+" Timeout : {}".format(rootTime-self.parent.activeTime))
+        timeO = rootTime-self.parent.activeTime
+        if timeO >= 0:
+            self.label.set_text("Root Win"+" Timeout : {}".format(timeO))
+        else:
+            if self.parent.isEnded == False:
+                dialog = dialogs.textMessage(self,"Time Ended ")
+                response = dialog.run()
+                dialog.destroy()
+                self.parent.isEnded = True
 
     def allUsersBC(self, widget):
         self.dialog = allUsersDialog(self)
@@ -90,7 +111,8 @@ class RootWin(Gtk.VBox):
     def updateButtonC(self, widget):
         reqL = self.reqEntery.get_text()
         messageL = self.mesLEntery.get_text()
-        sqlLib.setRootData(reqL,messageL)
+        timeout = self.timeoutEntery.get_text()
+        sqlLib.setRootData(reqL,messageL,timeout)
         
 
     def turnbackBC(self,widget):
@@ -329,6 +351,18 @@ class allUsersDialog(Gtk.Dialog):
                 self.StudentStore.append([*sData])
         #except:
         #    pass
+
+        self.show_all()
+
+
+class fillStudentDialog(Gtk.Dialog):
+    def __init__(self, parent):
+        super().__init__(title="My Lessons")
+        box = self.get_content_area()
+        self.parent = parent
+        self.set_default_size(650, 600)
+
+        #combobox (  ) fill button,
 
         self.show_all()
 
