@@ -549,24 +549,24 @@ def createRootTable():
         CREATE TABLE IF NOT EXISTS Root (
         rec INT PRIMARY KEY,
         ReqTeacherLimit INT,
-        MessageLenLimit INT)
+        MessageLenLimit INT,
+        Timeout INT)
      """
     try:
         cursor.execute(createRTable)
     except:
         print("error createing Root table")
 
-def setRootData(reqL, mlenL):
+def setRootData(reqL, mlenL,timeout):
     delData = "DELETE FROM Root;"
     cursor.execute(delData)
-    ınsertNew = """ INSERT INTO Root VALUES (0 , '{}' ,'{}');  """.format(reqL, mlenL)
+    ınsertNew = """ INSERT INTO Root VALUES (0 , '{}' ,'{}','{}');  """.format(reqL, mlenL,timeout)
     cursor.execute(ınsertNew)
 
 def getRootData():
     ınsertNew = """ SELECT * FROM Root;"""
     cursor.execute(ınsertNew)
     data = cursor.fetchall()
-    print(data)
     return data
 
 

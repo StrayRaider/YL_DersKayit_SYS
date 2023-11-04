@@ -1,11 +1,17 @@
-from libs import way, student, teacher, root, logIn
+from libs import way, student, teacher, root, logIn, thr, sqlLib
 from gi.repository import Gtk
+import threading
 
 class MyWindow(Gtk.Window):
     def __init__(self):
         super().__init__(title=" Proje Dersi Kayıt Sistemi ")
 
         self.ActiveNo = -1
+        self.isEnded = False
+        self.activeTime = 0
+        #thread think
+        timer_thread = threading.Thread(target =thr.clockT, args = [int(sqlLib.getRootData()[0][3]),self])
+        timer_thread.start()
 
         self.stack = Gtk.Stack()
         self.add(self.stack)

@@ -7,6 +7,7 @@ from gi.repository import Gtk
 
 sqlLib.connect()
 
+
 #sqlLib.dropLogIn()
 #sqlLib.droptable("ActiveLessons")
 sqlLib.createLogIn()
@@ -17,7 +18,9 @@ sqlLib.createActiveLessons()
 #sqlLib.droptable("Teachers")
 sqlLib.createTeacherTable()
 sqlLib.createAcceptedLessons()
+sqlLib.droptable("Root")
 sqlLib.createRootTable()
+sqlLib.setRootData(1,100,300)
 
 #sqlLib.droptable("Lessons")
 #sqlLib.createLessons()
@@ -34,16 +37,6 @@ if(sqlLib.LogIn("root", "root", "root")):
 if(sqlLib.LogIn("emre", "1234", "student")):
     print("root loginnig")
 
-
-#cursor.execute("SELECT * FROM LogIn")
-# it returns single line
-# use fetchall instead
-#print(cursor.fetchall())
-
-print("\n\n")
-print("\n students \n")
-#sqlLib.getStudentsNoReqForTeacher()
-print("\n\n")
 
 
 win = window.MyWindow()

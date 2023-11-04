@@ -4,15 +4,14 @@ from libs import sqlLib
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-
-
-
 class RootWin(Gtk.VBox):
     def __init__(self,parent):
         Gtk.VBox.__init__(self)
         self.parent = parent
-        self.label = Gtk.Label("Student Win")
+        self.label = Gtk.Label("Root Win")
         self.pack_start(self.label,0,0,5)
+
+        self.connect("draw",self.updateTime)
         
         self.newUserB = Gtk.Button()
         self.newUserB.set_label("New User")
@@ -35,8 +34,8 @@ class RootWin(Gtk.VBox):
         self.pack_start(self.turnbackB,0,0,5)
 
         self.hBox = Gtk.HBox()
-        self.label = Gtk.Label("Req Limit")
-        self.hBox.pack_start(self.label,0,0,5)
+        self.reqlabel = Gtk.Label("Req Limit")
+        self.hBox.pack_start(self.reqlabel,0,0,5)
 
         self.reqEntery = Gtk.Entry()
         self.reqEntery.set_placeholder_text(" Req Limit ")
@@ -44,8 +43,8 @@ class RootWin(Gtk.VBox):
         self.pack_start(self.hBox, 0,0,5)
 
         self.hBox = Gtk.HBox()
-        self.label = Gtk.Label("Message Len Limit")
-        self.hBox.pack_start(self.label,0,0,5)
+        self.messagelabel = Gtk.Label("Message Len Limit")
+        self.hBox.pack_start(self.messagelabel,0,0,5)
 
         self.mesLEntery = Gtk.Entry()
         self.mesLEntery.set_placeholder_text(" Message Len Limit ")
@@ -74,6 +73,10 @@ class RootWin(Gtk.VBox):
         self.pack_start(self.updateButton,0,0,5)
         
         self.pack_start(self.allStudentsB,0,0,5)
+
+    def updateTime(self,widget,cr):
+        rootTime = sqlLib.getRootData()[0][3]
+        self.label.set_text("Root Win"+" Timeout : {}".format(rootTime-self.parent.activeTime))
 
     def allUsersBC(self, widget):
         self.dialog = allUsersDialog(self)

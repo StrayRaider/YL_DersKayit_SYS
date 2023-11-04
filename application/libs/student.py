@@ -72,6 +72,7 @@ class StudentWin(Gtk.VBox):
         self.updateStudentInfo(None,None)
 
     def isAbleToC(self):
+        print(self.parent.isEnded)
         if self.parent.ActiveNo != -1 :
             try:
                 studentNo = sqlLib.getStudentData(self.parent.ActiveNo)[1]
@@ -140,6 +141,8 @@ class StudentWin(Gtk.VBox):
             dialog.destroy()
 
     def updateStudentInfo(self,widget,cr):
+        rootTime = sqlLib.getRootData()[0][3]
+        self.label.set_text("Student Win"+" Timeout : {}".format(rootTime-self.parent.activeTime))
         try:
             studentData = sqlLib.getStudentData(self.parent.ActiveNo)
             if studentData and studentData != []:

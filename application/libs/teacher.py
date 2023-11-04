@@ -29,7 +29,7 @@ class TeacherWin(Gtk.VBox):
         self.messageLabel = Gtk.Label("message : ")
         self.pack_start(self.messageLabel,0,0,5)
 
-        #self.connect("draw",self.updateMessages)
+        self.connect("draw",self.updateTime)
         print(self.parent.ActiveNo)
 
 
@@ -53,7 +53,9 @@ class TeacherWin(Gtk.VBox):
         self.regEntery.set_placeholder_text(" Sicil ")
         self.pack_start(self.regEntery,0,0,5)
 
-
+    def updateTime(self,widget,cr):
+        rootTime = sqlLib.getRootData()[0][3]
+        self.label.set_text("Teacher Win"+" Timeout : {}".format(rootTime-self.parent.activeTime))
 
     def updateMessages(self,widget):
         regNo = sqlLib.getTeacherData(self.parent.ActiveNo)[0][1]
