@@ -32,6 +32,8 @@ class TeacherWin(Gtk.VBox):
         self.connect("draw",self.updateTime)
         print(self.parent.ActiveNo)
 
+        self.limlabel = Gtk.Label("Teacher Limit Left : ")
+        self.pack_start(self.limlabel,0,0,5)
 
         self.reqLB = Gtk.Button()
         self.reqLB.set_label("Requests")
@@ -49,11 +51,19 @@ class TeacherWin(Gtk.VBox):
         self.MessageB.connect("clicked",self.updateMessages)
         self.pack_start(self.MessageB,0,0,5)
 
+        self.mylessonsB = Gtk.Button()
+        self.mylessonsB.set_label("MY Lessons")
+        self.mylessonsB.connect("clicked",self.mylessonsC)
+        self.pack_start(self.mylessonsB,0,0,5)
+
         self.regEntery = Gtk.Entry()
         self.regEntery.set_placeholder_text(" Sicil ")
         self.pack_start(self.regEntery,0,0,5)
 
     def updateTime(self,widget,cr):
+        if 1:
+            regNo = sqlLib.getTeacherData(self.parent.ActiveNo)[0][1]
+            self.limlabel.set_text("Teacher Limit Left : {}".format(sqlLib.getTeacherMaxStudent(regNo)[0][0] - sqlLib.getTeacherActiveStudent(regNo)))
         rootTime = sqlLib.getRootData()[0][3]
         timeO = rootTime-self.parent.activeTime
         if timeO >= 0:
@@ -72,6 +82,10 @@ class TeacherWin(Gtk.VBox):
         self.dialog = readMessages(self,regNo,"teacher")
         response = self.dialog.run()
 
+    def mylessonsC(self,widget):
+        self.dialog = myLessonsDialog(self)
+        response = self.dialog.run()
+        self.dialog.destroy()
 
 
     def turnbackBC(self,widget):
@@ -92,6 +106,7 @@ class TeacherWin(Gtk.VBox):
     def intButtonC(self,widget):
         self.dialog = InterestDialog(self)
         response = self.dialog.run()
+        self.dialog.destroy()
 
     def reqLBC(self,widget):
         #close
@@ -607,6 +622,54 @@ class LessonDialog(Gtk.Dialog):
 
 
         label = Gtk.Label(label="This is a dialog to display additional information")
+
+        box.add(label)
+        self.show_all()
+
+
+class myLessonsDialog(Gtk.Dialog):
+    def __init__(self, parent):
+        super().__init__(title="All Lessons")
+        self.add_buttons(
+            Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK
+        )
+        self.parent = parent
+        self.set_default_size(650, 600)
+        box = self.get_content_area()
+
+
+        self.StudentLStore = Gtk.ListStore(str,str,str,str)
+        self.StudentLTree = Gtk.TreeView(self.StudentLStore)
+
+        cell = Gtk.CellRendererText()
+        cell.set_property("editable", True) #eğer tect değiştirilebilir olsun istersen
+        #stun tanımlama işlemi 1. argüman stun adı, 2. tutacağı hücre tipi 3, ekleme
+        #yaparken listenin kaçıncı argümanını alacağı
+        recColumn = Gtk.TreeViewColumn("rec",cell,text = 0)
+
+        lNocolumn = Gtk.TreeViewColumn("Lesson No",cell,text = 1)
+
+        sNocolumn = Gtk.TreeViewColumn("Lesson Name",cell,text = 2)
+
+        self.StudentLTree.append_column(recColumn)
+        self.StudentLTree.append_column(sNocolumn)
+        self.StudentLTree.append_column(lNocolumn)
+
+        l_scrolled = Gtk.ScrolledWindow()
+        box.pack_start(l_scrolled,1,1,10)
+        l_scrolled.add(self.StudentLTree)
+
+        regNo = sqlLib.getTeacherData(self.parent.parent.ActiveNo)[0][1]
+        for i in sqlLib.getTeachersActiveLesson(regNo):
+            print(i)
+            string_list = []
+            for item in i:
+                string_list.append(str(item))
+                
+            self.StudentLStore.append([*string_list])
+
+
+        label = Gtk.Label(label="This is a dialog to display Teache's Lessons")
 
         box.add(label)
         self.show_all()

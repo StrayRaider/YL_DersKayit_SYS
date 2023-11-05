@@ -345,6 +345,20 @@ def getActiveLessonData(lessonNo, regNo):
     print(data)
     return data
 
+def getActiveLessonTeachers(lessonNo):
+    ınsertNew = """ SELECT RegNo FROM ActiveLessons WHERE LessonNo = '{}';""".format(lessonNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    data = parseData(data)
+    print(data)
+    return data
+
+def getTeachersActiveLesson(regNo):
+    ınsertNew = """ SELECT * FROM ActiveLessons WHERE RegNo = '{}';""".format(regNo)
+    cursor.execute(ınsertNew)
+    data = cursor.fetchall()
+    print(data)
+    return data
 
 def genLessonNo(lessonName):
     lessons = getActiveLessons()
@@ -493,6 +507,13 @@ def getTeacherActiveStudent(regNo):
             counter += 1
     return counter
 
+def isTeacherAbleToGet(regNo):
+    left = getTeacherMaxStudent(regNo)[0][0] - getTeacherActiveStudent(regNo)
+    if left > 0:
+        return 1
+    else:
+        return 0
+
 def acceptLesson(studentNo, regNo, lessonNo):
     #control is acceptable
     activeStudent = getTeacherActiveStudent(regNo)
@@ -506,16 +527,16 @@ def acceptLesson(studentNo, regNo, lessonNo):
         connect()
         return True
     else:
-        self.dialog = dialogs.textMessage(None," Student Limit Reached ! \n not able to accept The Lesson")
-        response = self.dialog.run()
-        self.dialog.destroy()
+        dialog = dialogs.textMessage(None," Student Limit Reached ! \n not able to accept The Lesson")
+        response = dialog.run()
+        dialog.destroy()
         return False
 
 def getAllAcceptedLesson():
     ınsertNew = """ SELECT * FROM AcceptedLessons;"""
     cursor.execute(ınsertNew)
     data = cursor.fetchall()
-    print("Accepted Lesson : ",data)
+    #print("Accepted Lesson : ",data)
     return data
 
 def getAcceptedLesson(studentNo):

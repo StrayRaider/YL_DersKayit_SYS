@@ -1,0 +1,21 @@
+digraph {
+	start [label=Start]
+	init_vars [label="Initialize Variables"]
+	start -> init_vars
+	define_notes [label="Define Notes"]
+	init_vars -> define_notes
+	split_data [label="Split Data"]
+	define_notes -> split_data
+	iterate_lessons [label="Iterate Over Lessons"]
+	split_data -> iterate_lessons
+	check_length [label="Check LessonL Length"]
+	iterate_lessons -> check_length
+	append_lesson_list [label="Append LessonL to LessonList"]
+	check_length -> append_lesson_list
+	display_list [label="Display LessonList"]
+	append_lesson_list -> display_list
+	iterate_list [label="Iterate Over LessonList"]
+	display_list -> iterate_list
+	end [label=End]
+	iterate_list -> end
+}

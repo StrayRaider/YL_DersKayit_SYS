@@ -1,4 +1,4 @@
-import gi
+import gi, random
 from libs import sqlLib, dialogs
 
 gi.require_version("Gtk", "3.0")
@@ -86,6 +86,16 @@ class RootWin(Gtk.VBox):
 
         
         self.pack_start(self.allStudentsB,0,0,5)
+
+        self.fillS = Gtk.Button()
+        self.fillS.set_label("Create Student")
+        self.fillS.connect("clicked",self.fillBC)
+        self.pack_start(self.fillS,0,0,5)
+
+    def fillBC(self, widget):
+        self.dialog = fillStudentDialog(self)
+        response = self.dialog.run()
+        self.dialog.destroy()
 
     def updateTime(self,widget,cr):
         rootTime = sqlLib.getRootData()[0][3]
@@ -362,7 +372,76 @@ class fillStudentDialog(Gtk.Dialog):
         self.parent = parent
         self.set_default_size(650, 600)
 
-        #combobox (  ) fill button,
+        ways = [
+            "random",
+        ]
+        self.rolecombo = Gtk.ComboBoxText()
+        self.rolecombo.set_entry_text_column(0)
+        self.rolecombo.connect("changed", self.on_currency_combo_changed)
+        for way in ways:
+            self.rolecombo.append_text(way)
+        box.pack_start(self.rolecombo,0,0,5)
+
+        self.fillS = Gtk.Button()
+        self.fillS.set_label("Create Student")
+        self.fillS.connect("clicked",self.fillBC)
+        box.pack_start(self.fillS,0,0,5)
 
         self.show_all()
+
+    def on_currency_combo_changed(self,widget):
+        pass
+
+    def fillBC(self, widget):
+        print("students are filling to all lessons")
+        # tüm öğrencileri al
+        # her öğrencinin tüm alabileceği dersleri bul
+        # kontenjanı olan herhangi bir hocaya ata
+        #tüm açılan dersleri bul
+
+        # rec, lessonNo, name, regNo
+
+
+        #her bir öğrenci için
+        students = sqlLib.getStudents()
+        for student in students:
+            #açılan tüm dersleri al
+            activeLessons = sqlLib.getActiveLessons()
+            activeLessonNo = []
+            for alesson in activeLessons:
+                if alesson[1] not in activeLessonNo:
+                    activeLessonNo.append(alesson[1])
+            print(activeLessonNo)
+
+            studentData = sqlLib.getStudentData(student) 
+            if studentData:
+                studentNo = studentData[1]
+                print(studentData)
+                acceptedL = sqlLib.getAcceptedLessonNo(studentNo)
+                for studentsAles in acceptedL:
+                    if studentsAles in activeLessonNo:
+                        activeLessonNo.remove(studentsAles)
+                print("new one",activeLessonNo)
+            #alınacak ders
+                for getLesson in activeLessonNo:
+                    teachers = sqlLib.getActiveLessonTeachers(getLesson)
+                    print(teachers,len(teachers))
+                    randt = random.randint(0,len(teachers)-1)
+                    regNo = teachers[randt]
+                    counter = 0
+                    while not sqlLib.isTeacherAbleToGet(regNo):
+                        print("\n burada \n",regNo)
+                        randt = random.randint(0,len(teachers)-1)
+                        regNo = teachers[randt]
+                        counter += 1
+                        if counter > 20:
+                            break
+
+                    print("Reg No : ", regNo)
+                    # for this lesson this reg no this student has accepted
+                    sqlLib.acceptLesson(studentNo, regNo, getLesson)
+
+
+        # her bir hoca için teachersL = sqlLib.getTeachersActiveL(regNo)
+
 
