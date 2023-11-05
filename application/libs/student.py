@@ -246,7 +246,8 @@ class LessonDialog(Gtk.Dialog):
         l_scrolled.add(self.StudentLTree)
 
         activeNo = self.parent.parent.ActiveNo
-        for i in sqlLib.getStudentsLessons(activeNo):
+        studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
+        for i in sqlLib.getStudentsLessons(studentNo):
             print(i)
             string_list = []
             for item in i:
@@ -499,7 +500,8 @@ class DropArea(Gtk.Label):
             file = file+".pdf"
             print("recieved : "+ text)
             lessonList, studentData = ocrRead.runOcr(file)
-            sqlLib.NewStudentLessons(self.parent.parent.ActiveNo, lessonList)
+            studentNo = sqlLib.getStudentData(self.parent.parent.ActiveNo)[1]
+            sqlLib.NewStudentLessons([studentNo], lessonList)
             sqlLib.createNewStudent(self.parent.parent.ActiveNo, *studentData, file)
             self.parent.updateStudentInfo(None,None)
             sqlLib.getAllSL()

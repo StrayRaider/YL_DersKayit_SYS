@@ -129,13 +129,13 @@ def NewStudentLessons(studentNo,lessonList):
     print("rec : ",rec)
 
 def getAllSL():
-    ınsertNew = """ SELECT * FROM StudentsLessons"""
+    ınsertNew = """ SELECT * FROM StudentsLessons;"""
     cursor.execute(ınsertNew)
     lessonList = cursor.fetchall()
     print("List : ",lessonList)
 
 def getAllSLessons():
-    ınsertNew = """ SELECT * FROM StudentsLessons"""
+    ınsertNew = """ SELECT * FROM StudentsLessons;"""
     cursor.execute(ınsertNew)
     lessonList = cursor.fetchall()
     lessons = []
@@ -143,6 +143,15 @@ def getAllSLessons():
         if lesson[2] not in lessons:
             lessons.append(lesson[2])
     print("List : ",lessons)
+    return lessons
+
+def getSLessonData(lessonNo):
+    ınsertNew = """ SELECT * FROM StudentsLessons WHERE LessonNo = '{}';""".format(lessonNo)
+    cursor.execute(ınsertNew)
+    lessonList = cursor.fetchall()
+    print("List : ",lessonList)
+    return lessonList
+
 
 def getStudentsLessons(StudentNo):
     ınsertNew = """ SELECT * FROM StudentsLessons WHERE StudentNo = '{}'  """.format(StudentNo)
@@ -232,6 +241,29 @@ def parseData(data):
         pdata.append(i)
     return pdata
 
+def createRandomStudentsLessons(studentNo):
+    allLessons = getAllSLessons()
+    print("all lessons here : ",allLessons)
+    print("student No : ",studentNo)
+    for lesson in allLessons:
+        isTake = random.randint(0,1)
+        if isTake:
+            lessonData = getSLessonData(lesson)
+            print("lesson Data :",lessonData)
+            notes = ['AA','BA', 'BB','CB', 'CC', 'DC','DD','FD','FF','KK']
+            noteR = random.randint(0,len(notes)-1)
+            lesNote = notes[noteR] 
+            listData = [[lessonData[0][2],lesNote,lessonData[0][4]]]
+            studentN = []
+            studentN.append(studentNo)
+            NewStudentLessons(studentN,listData)
+
+def getAllSL():
+    ınsertNew = """ SELECT * FROM StudentsLessons;"""
+    cursor.execute(ınsertNew)
+    lessonList = cursor.fetchall()
+    print("List : ",lessonList)
+
 def createRandomStudent(count):
     for x in range(0,int(count)):
         userNo = genUserNo()
@@ -242,9 +274,10 @@ def createRandomStudent(count):
     
         name = "student"+str(userNo)
         surName = "studentsur"+str(userNo)
-        note = "0"
+        note = str(round(random.uniform(0, 4), 2))
         transkriptPath = "--"
         createNewUser(name, userNo,"student")
+        createRandomStudentsLessons(studentNo)
         createNewStudent(userNo, studentNo,name,surName, note,transkriptPath)
     closeDB()
     connect()
