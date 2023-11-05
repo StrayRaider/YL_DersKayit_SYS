@@ -56,10 +56,6 @@ class TeacherWin(Gtk.VBox):
         self.mylessonsB.connect("clicked",self.mylessonsC)
         self.pack_start(self.mylessonsB,0,0,5)
 
-        self.regEntery = Gtk.Entry()
-        self.regEntery.set_placeholder_text(" Sicil ")
-        self.pack_start(self.regEntery,0,0,5)
-
     def updateTime(self,widget,cr):
         if 1:
             regNo = sqlLib.getTeacherData(self.parent.ActiveNo)[0][1]
